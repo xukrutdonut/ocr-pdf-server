@@ -1,5 +1,12 @@
 fastapi
 uvicorn
-pdf2image
-pytesseract
 python-multipart
+pydantic
+requests
+beautifulsoup4
+lxml
+# Para procesamiento extra de texto/OCR si lo usas:
+unidecode
+# Si tu backend necesita manipulación PDF o imágenes:
+# pdfplumber
+# Pillow
