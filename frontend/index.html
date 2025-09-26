@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OCR PDF Drag & Drop</title>
+  <style>
+    #dropzone { border: 2px dashed #aaa; padding: 40px; text-align: center; cursor: pointer;}
+    #result { white-space: pre-wrap; margin-top: 20px; background: #f9f9f9; border: 1px solid #ddd; padding: 20px;}
+  </style>
+</head>
+<body>
+  <h1>OCR PDF Drag & Drop</h1>
+  <div id="dropzone">Arrastra tu PDF aquí o haz clic para seleccionar</div>
+  <div id="result"></div>
+  <input type="file" id="fileInput" style="display: none;" accept="application/pdf">
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const result = document.getElementById('result');
+    const fileInput = document.getElementById('fileInput');
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.style.background = '#eef'; });
+    dropzone.addEventListener('dragleave', e => { dropzone.style.background = ''; });
+    dropzone.addEventListener('drop', async e => {
+      e.preventDefault();
+      dropzone.style.background = '';
+      handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', () => {
+      handleFiles(fileInput.files);
+    });
+
+    async function handleFiles(files) {
+      const file = files[0];
+      if (!file || file.type !== 'application/pdf') {
+        alert('Sólo se permiten archivos PDF');
+        return;
+      }
+      const formData = new FormData();
+      formData.append('file', file);
+      result.textContent = 'Procesando...';
+      try {
+        const res = await fetch('/ocr', { method: 'POST', body: formData });
+        const data = await res.json();
+        result.textContent = data.text;
+      } catch (e) {
+        result.textContent = 'Error procesando el archivo';
+      }
+    }
+  </script>
+</body>
+</html>
