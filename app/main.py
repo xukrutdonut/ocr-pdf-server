@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse, FileResponse
 import tempfile
 from pdf2image import convert_from_bytes
 import pytesseract
-from scraping_psicometrico import scrape_psicometricas, save_pruebas, load_pruebas
+from .scraping_psicometrico import scrape_psicometricas, save_pruebas, load_pruebas
 
 app = FastAPI()
 
@@ -91,23 +91,50 @@ def scraping_and_reprocess(text, pdf_bytes):
 
 @app.post("/ocr")
 async def ocr_pdf(file: UploadFile = File(...)):
+    # Validar que el archivo sea un PDF válido
+    if not file.filename or not file.filename.lower().endswith('.pdf'):
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Solo se permiten archivos PDF"}
+        )
+    
     pruebas = load_pruebas()
     pdf_bytes = await file.read()
-    with tempfile.TemporaryDirectory() as tmpdir:
-        images = convert_from_bytes(pdf_bytes, output_folder=tmpdir)
-        text = ""
-        for img in images:
-            text += pytesseract.image_to_string(img) + "\n"
+    
+    # Validar que el archivo no esté vacío
+    if not pdf_bytes or len(pdf_bytes) < 100:  # Un PDF mínimo tiene al menos 100 bytes
+        return JSONResponse(
+            status_code=400,
+            content={"error": "El archivo PDF está vacío o corrupto"}
+        )
+    
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            images = convert_from_bytes(pdf_bytes, output_folder=tmpdir)
+            text = ""
+            for img in images:
+                text += pytesseract.image_to_string(img) + "\n"
+    except Exception as e:
+        return JSONResponse(
+            status_code=400,
+            content={"error": f"Error procesando el PDF: {str(e)}"}
+        )
+    
     resultados, pruebas_encontradas = extract_puntuaciones(text, pruebas)
     posibles_pruebas = detect_posibles_pruebas(text)
     unknown_pruebas = posibles_pruebas - set(pruebas)
     ascii_graph = generate_ascii_graph(resultados)
     text_html = mark_unknown_pruebas(text, unknown_pruebas)
+    
     # Si hay pruebas desconocidas, activa scraping asíncrono y reprocesa
     if unknown_pruebas:
         def async_scraping():
-            scraping_and_reprocess(text, pdf_bytes)
+            try:
+                scraping_and_reprocess(text, pdf_bytes)
+            except Exception as e:
+                print(f"Error en scraping asíncrono: {e}")
         threading.Thread(target=async_scraping).start()
+    
     return JSONResponse({
         "text": text_html,
         "ascii_graph": ascii_graph,
@@ -119,3 +146,50 @@ async def ocr_pdf(file: UploadFile = File(...)):
 @app.get("/")
 async def index():
     return FileResponse("frontend/index.html")
+
+@app.get("/health")
+async def health_check():
+    """Endpoint de salud para verificar que todos los servicios estén funcionando"""
+    health_status = {"status": "healthy", "checks": {}}
+    
+    try:
+        # Verificar que se pueden cargar las pruebas
+        pruebas = load_pruebas()
+        health_status["checks"]["pruebas_loaded"] = {
+            "status": "ok", 
+            "count": len(pruebas)
+        }
+    except Exception as e:
+        health_status["status"] = "unhealthy"
+        health_status["checks"]["pruebas_loaded"] = {
+            "status": "error", 
+            "error": str(e)
+        }
+    
+    try:
+        # Verificar que Tesseract está disponible
+        import pytesseract
+        version = pytesseract.get_tesseract_version()
+        health_status["checks"]["tesseract"] = {
+            "status": "ok", 
+            "version": str(version)
+        }
+    except Exception as e:
+        health_status["status"] = "unhealthy" 
+        health_status["checks"]["tesseract"] = {
+            "status": "error", 
+            "error": str(e)
+        }
+    
+    try:
+        # Verificar que pdf2image puede importarse
+        from pdf2image import convert_from_bytes
+        health_status["checks"]["pdf2image"] = {"status": "ok"}
+    except Exception as e:
+        health_status["status"] = "unhealthy"
+        health_status["checks"]["pdf2image"] = {
+            "status": "error", 
+            "error": str(e)
+        }
+    
+    return JSONResponse(health_status)

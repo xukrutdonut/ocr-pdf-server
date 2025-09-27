@@ -40,10 +40,45 @@
       result.textContent = 'Procesando...';
       try {
         const res = await fetch('/ocr', { method: 'POST', body: formData });
+        if (!res.ok) {
+          const errorData = await res.json();
+          result.textContent = `Error: ${errorData.error || 'Error desconocido'}`;
+          return;
+        }
         const data = await res.json();
-        result.textContent = data.text;
+        
+        // Mostrar resultados
+        let output = '';
+        if (data.text) {
+          output += 'TEXTO EXTRAÍDO:\n' + '='.repeat(50) + '\n';
+          output += data.text + '\n\n';
+        }
+        
+        if (data.ascii_graph) {
+          output += 'GRÁFICO DE PUNTUACIONES:\n' + '='.repeat(50) + '\n';
+          output += data.ascii_graph + '\n\n';
+        }
+        
+        if (data.pruebas && data.pruebas.length > 0) {
+          output += 'PRUEBAS DETECTADAS:\n' + '='.repeat(50) + '\n';
+          data.pruebas.forEach(p => {
+            output += `${p.nombre}: ${p.escala} = ${p.puntuacion}\n`;
+          });
+          output += '\n';
+        }
+        
+        if (data.unknown_pruebas && data.unknown_pruebas.length > 0) {
+          output += 'POSIBLES PRUEBAS NO RECONOCIDAS:\n' + '='.repeat(50) + '\n';
+          output += data.unknown_pruebas.join(', ') + '\n\n';
+        }
+        
+        if (data.reproceso_pendiente) {
+          output += '⏳ Reprocesando con nuevas pruebas en segundo plano...\n';
+        }
+        
+        result.innerHTML = `<pre>${output}</pre>`;
       } catch (e) {
-        result.textContent = 'Error procesando el archivo';
+        result.textContent = `Error de conexión: ${e.message}`;
       }
     }
   </script>

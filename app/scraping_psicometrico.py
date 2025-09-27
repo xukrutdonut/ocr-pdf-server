@@ -1,5 +1,9 @@
 import re
-from app.psico_tests_patterns import PSICOMETRIC_TESTS
+import json
+import os
+import requests
+from bs4 import BeautifulSoup
+from .psico_test_patterns import PSICOMETRIC_TESTS
 
 # Patrones para puntuaciones tipificadas (CI, percentil, compuesta, verbal, manip, etc)
 TIPIFICADAS_PATTERNS = [
@@ -75,3 +79,39 @@ if __name__ == "__main__":
     resultado = interpretar_resultados(texto)
     from pprint import pprint
     pprint(resultado)
+
+# Funciones adicionales requeridas por main.py
+def scrape_psicometricas():
+    """
+    Scrape para obtener nuevas pruebas psicométricas de fuentes en línea
+    Por ahora retorna las pruebas ya conocidas
+    """
+    # En una implementación real, aquí harías scraping de sitios web
+    # Por ahora, retornamos las pruebas que ya conocemos
+    return list(PSICOMETRIC_TESTS.keys())
+
+def save_pruebas(pruebas):
+    """
+    Guarda las pruebas en un archivo JSON
+    """
+    pruebas_file = os.path.join(os.path.dirname(__file__), 'pruebas_psicometricas.json')
+    try:
+        with open(pruebas_file, 'w', encoding='utf-8') as f:
+            json.dump(pruebas, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Error al guardar pruebas: {e}")
+
+def load_pruebas():
+    """
+    Carga las pruebas desde el archivo JSON o retorna las por defecto
+    """
+    pruebas_file = os.path.join(os.path.dirname(__file__), 'pruebas_psicometricas.json')
+    try:
+        if os.path.exists(pruebas_file):
+            with open(pruebas_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception as e:
+        print(f"Error al cargar pruebas: {e}")
+    
+    # Si no se puede cargar el archivo, retornar las pruebas por defecto
+    return list(PSICOMETRIC_TESTS.keys())
