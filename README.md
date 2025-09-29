@@ -1,14 +1,14 @@
 # OCR PDF Server
 
-Servidor web para procesamiento de PDF con OCR y análisis de pruebas psicométricas.
+Servidor web para extracción de texto de archivos PDF mediante OCR (Reconocimiento Óptico de Caracteres).
 
 ## Funcionalidades
 
 - Extracción de texto de PDFs mediante OCR (Tesseract)
-- Reconocimiento automático de pruebas psicométricas
-- Análisis y extracción de puntuaciones (CI, Percentiles, etc.)
-- Visualización con gráficos ASCII
-- Interfaz web de arrastrar y soltar
+- Interfaz web moderna con funcionalidad de arrastrar y soltar
+- Soporte para múltiples idiomas (Español e Inglés)
+- API REST simple y eficiente
+- Estadísticas básicas del texto extraído
 
 ## Requisitos
 
@@ -50,11 +50,28 @@ docker build -t ocr-pdf-server .
 docker run -p 8000:80 ocr-pdf-server
 ```
 
+## API
+
+### POST /ocr
+Extrae texto de un archivo PDF.
+
+**Parámetros:**
+- `file`: Archivo PDF (form-data)
+
+**Respuesta:**
+```json
+{
+  "text": "Texto extraído del PDF",
+  "success": true
+}
+```
+
+### GET /health
+Verifica el estado de los servicios.
+
 ## Estructura del Proyecto
 
 - `app/` - Código fuente del servidor
   - `main.py` - API FastAPI principal
-  - `scraping_psicometrico.py` - Lógica de análisis psicométrico
-  - `psico_test_patterns.py` - Patrones de reconocimiento de tests
-- `frontend/` - Interfaz web
+- `frontend/` - Interfaz web moderna
 - `venv/` - Entorno virtual de Python
