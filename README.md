@@ -45,6 +45,13 @@ Luego abre http://localhost:8000 en tu navegador.
 
 ## Docker
 
+### Opción 1: Docker Compose (Recomendado)
+```bash
+docker compose up -d
+```
+El servidor estará disponible en http://localhost:8330
+
+### Opción 2: Docker manual
 ```bash
 docker build -t ocr-pdf-server .
 docker run -p 8000:80 ocr-pdf-server

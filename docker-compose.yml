@@ -1,0 +1,7 @@
+services:
+  ocr-pdf-server:
+    build: .
+    container_name: ocr-pdf-server
+    ports:
+      - "8330:80"
+    restart: unless-stopped
