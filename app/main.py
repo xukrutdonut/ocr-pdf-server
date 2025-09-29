@@ -3,8 +3,12 @@ from fastapi.responses import JSONResponse, FileResponse
 import tempfile
 from pdf2image import convert_from_bytes
 import pytesseract
+from .score_analyzer import ScoreAnalyzer
 
 app = FastAPI()
+
+# Initialize score analyzer
+score_analyzer = ScoreAnalyzer()
 
 @app.post("/ocr")
 async def ocr_pdf(file: UploadFile = File(...)):
@@ -36,9 +40,13 @@ async def ocr_pdf(file: UploadFile = File(...)):
             content={"error": f"Error procesando el PDF: {str(e)}"}
         )
     
+    # Analyze text for scores and generate graphs
+    score_analysis = score_analyzer.analyze_text(text)
+    
     return JSONResponse({
         "text": text.strip(),
-        "success": True
+        "success": True,
+        "score_analysis": score_analysis
     })
 
 @app.get("/")

@@ -157,6 +157,26 @@
       border-top: 1px solid #dee2e6;
     }
     
+    .score-summary {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      padding: 15px;
+      margin: 10px 0;
+    }
+    
+    .score-graph {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+      font-family: 'Courier New', 'Monaco', monospace;
+      font-size: 0.85rem;
+      line-height: 1.2;
+      white-space: pre;
+    }
+    
     input[type="file"] {
       display: none;
     }
@@ -202,6 +222,14 @@
       <div id="result"></div>
       <div class="stats" id="stats" style="display: none;"></div>
     </div>
+    
+    <div class="card" id="score-card" style="display: none;">
+      <div class="result-header">
+        <span>📊</span>
+        <span>Análisis de Puntuaciones</span>
+      </div>
+      <div id="score-result"></div>
+    </div>
   </div>
   
   <input type="file" id="fileInput" accept="application/pdf">
@@ -210,6 +238,8 @@
     const dropzone = document.getElementById('dropzone');
     const result = document.getElementById('result');
     const resultCard = document.getElementById('result-card');
+    const scoreCard = document.getElementById('score-card');
+    const scoreResult = document.getElementById('score-result');
     const fileInput = document.getElementById('fileInput');
     const stats = document.getElementById('stats');
 
@@ -264,12 +294,13 @@
     
     function showLoading() {
       resultCard.style.display = 'block';
+      scoreCard.style.display = 'none';
       result.innerHTML = `
         <div class="loading">
           <div class="loading-spinner"></div>
           <div>Procesando PDF con OCR...</div>
           <div style="font-size: 0.9rem; margin-top: 10px; color: #999;">
-            Esto puede tomar unos momentos dependiendo del tamaño del archivo
+            Analizando puntuaciones psicológicas y educativas
           </div>
         </div>
       `;
@@ -278,6 +309,7 @@
     
     function showError(message) {
       resultCard.style.display = 'block';
+      scoreCard.style.display = 'none';
       result.innerHTML = `<div class="error">❌ ${message}</div>`;
       stats.style.display = 'none';
     }
@@ -305,6 +337,65 @@
         `;
         stats.style.display = 'none';
       }
+      
+      // Show score analysis if available
+      if (data.score_analysis && data.score_analysis.total_scores > 0) {
+        showScoreAnalysis(data.score_analysis);
+      } else {
+        scoreCard.style.display = 'none';
+      }
+    }
+    
+    function showScoreAnalysis(scoreAnalysis) {
+      scoreCard.style.display = 'block';
+      
+      let scoresHtml = `
+        <div class="result-content">
+          <div class="success">
+            ✅ Se detectaron ${scoreAnalysis.total_scores} puntuaciones en el documento
+          </div>
+          
+          <h3 style="margin: 20px 0 10px 0;">Puntuaciones Identificadas:</h3>
+          <ul style="margin: 0 0 20px 20px;">
+      `;
+      
+      // Group scores by type for better display
+      const scoresByType = {};
+      scoreAnalysis.scores.forEach(score => {
+        if (!scoresByType[score.type]) {
+          scoresByType[score.type] = [];
+        }
+        scoresByType[score.type].push(score);
+      });
+      
+      // Display grouped scores
+      for (const [type, scores] of Object.entries(scoresByType)) {
+        const typeName = getTypeDisplayName(type);
+        scoresHtml += `<li><strong>${typeName}:</strong> ${scores.map(s => s.value).join(', ')}</li>`;
+      }
+      
+      scoresHtml += `
+          </ul>
+          
+          <h3 style="margin: 20px 0 10px 0;">Gráfico de Distribución:</h3>
+          <pre style="background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 0.85rem; line-height: 1.2;">${scoreAnalysis.graph}</pre>
+        </div>
+      `;
+      
+      scoreResult.innerHTML = scoresHtml;
+    }
+    
+    function getTypeDisplayName(type) {
+      const typeNames = {
+        'decatipo': 'Decatipos',
+        'eneatipo': 'Eneatipos', 
+        'percentil': 'Percentiles',
+        'wechsler_ci': 'CI Wechsler',
+        't_score': 'Puntuaciones T',
+        'z_score': 'Puntuaciones Z',
+        'direct_score': 'Puntuaciones Directas'
+      };
+      return typeNames[type] || type;
     }
   </script>
 </body>
