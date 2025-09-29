@@ -7,6 +7,8 @@ beautifulsoup4
 lxml
 # Para procesamiento extra de texto/OCR si lo usas:
 unidecode
+pytesseract
+pdf2image
 # Si tu backend necesita manipulación PDF o imágenes:
 # pdfplumber
 # Pillow
