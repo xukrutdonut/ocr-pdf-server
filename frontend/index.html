@@ -110,6 +110,89 @@
       border: 1px solid #e9ecef;
     }
     
+    .highlighted-number {
+      background-color: #ffebee;
+      color: #d32f2f;
+      font-weight: bold;
+      padding: 2px 4px;
+      border-radius: 3px;
+      border: 1px solid #f8bbd9;
+    }
+    
+    .highlighted-score {
+      background-color: #e8f5e8;
+      color: #2e7d32;
+      font-weight: bold;
+      padding: 2px 4px;
+      border-radius: 3px;
+      border: 1px solid #a5d6a7;
+      cursor: help;
+    }
+    
+    .interpretations-section {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f0f7ff;
+      border-radius: 8px;
+      border: 1px solid #bbdefb;
+    }
+    
+    .interpretations-title {
+      font-weight: bold;
+      color: #1565c0;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+    
+    .interpretation-item {
+      background: white;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 5px;
+      border-left: 4px solid #2196f3;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .score-value {
+      font-weight: bold;
+      color: #d32f2f;
+      font-size: 1.1rem;
+    }
+    
+    .score-type {
+      color: #1976d2;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+    
+    .score-interpretation {
+      color: #388e3c;
+      font-weight: 500;
+    }
+    
+    .charts-section {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fff3e0;
+      border-radius: 8px;
+      border: 1px solid #ffcc02;
+    }
+    
+    .charts-title {
+      font-weight: bold;
+      color: #f57c00;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+    
+    .chart-container {
+      margin: 10px 0;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ffcc02;
+    }
+    
     .loading {
       text-align: center;
       padding: 40px;
@@ -286,14 +369,58 @@
       resultCard.style.display = 'block';
       
       if (data.text && data.text.trim()) {
-        result.innerHTML = `<div class="result-content">${data.text}</div>`;
+        // Display highlighted text if available, otherwise regular text
+        const displayText = data.highlighted_text || data.text;
+        result.innerHTML = `<div class="result-content">${displayText}</div>`;
         
-        // Mostrar estadísticas
+        // Add interpretations section if there are any recognized scores
+        if (data.interpretations && data.interpretations.length > 0) {
+          const interpretationsHtml = `
+            <div class="interpretations-section">
+              <div class="interpretations-title">🎯 Puntuaciones Identificadas</div>
+              ${data.interpretations.map(interp => `
+                <div class="interpretation-item">
+                  <div><span class="score-value">${interp.value}</span> - <span class="score-type">${interp.type.replace('_', ' ')}</span></div>
+                  <div class="score-interpretation">${interp.interpretation}</div>
+                  <div style="font-size: 0.9rem; color: #666; margin-top: 5px;">Contexto: ${interp.context}</div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+          result.innerHTML += interpretationsHtml;
+        }
+        
+        // Add charts section if there are recognized scores
+        if (data.statistics && data.statistics.recognized_scores > 0) {
+          const chartsHtml = `
+            <div class="charts-section">
+              <div class="charts-title">📊 Análisis Estadístico</div>
+              <div class="chart-container">
+                <strong>Números detectados:</strong> ${data.statistics.total_numbers}<br>
+                <strong>Puntuaciones reconocidas:</strong> ${data.statistics.recognized_scores}<br>
+                <strong>Números sin clasificar:</strong> ${data.statistics.unrecognized_numbers}
+              </div>
+              ${Object.keys(data.statistics.score_types || {}).length > 0 ? `
+                <div class="chart-container">
+                  <strong>Tipos de puntuaciones encontradas:</strong><br>
+                  ${Object.entries(data.statistics.score_types).map(([type, count]) => 
+                    `• ${type.replace('_', ' ')}: ${count}`
+                  ).join('<br>')}
+                </div>
+              ` : ''}
+            </div>
+          `;
+          result.innerHTML += chartsHtml;
+        }
+        
+        // Mostrar estadísticas básicas de texto
         const wordCount = data.text.trim().split(/\s+/).length;
         const charCount = data.text.length;
         stats.innerHTML = `
           <span>📊 Palabras: ${wordCount}</span>
           <span>🔤 Caracteres: ${charCount}</span>
+          <span>🔢 Números: ${data.statistics ? data.statistics.total_numbers : 0}</span>
+          <span>🎯 Puntuaciones: ${data.statistics ? data.statistics.recognized_scores : 0}</span>
         `;
         stats.style.display = 'flex';
       } else {
