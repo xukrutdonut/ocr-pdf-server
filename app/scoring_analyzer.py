@@ -154,8 +154,8 @@ class ScoringAnalyzer:
         """Detects all numbers in the text"""
         numbers = []
         
-        # Pattern to match numbers (integers and decimals)
-        number_pattern = r'\b\d+(?:[.,]\d+)?\b'
+        # Pattern to match numbers (integers and decimals, including negative numbers)
+        number_pattern = r'-?\b\d+(?:[.,]\d+)?\b'
         
         for match in re.finditer(number_pattern, text):
             try:
@@ -163,9 +163,9 @@ class ScoringAnalyzer:
                 value_str = match.group().replace(',', '.')
                 value = float(value_str)
                 
-                # Get context around the number (50 characters before and after)
-                start_context = max(0, match.start() - 50)
-                end_context = min(len(text), match.end() + 50)
+                # Get context around the number (80 characters before and after for better context)
+                start_context = max(0, match.start() - 80)
+                end_context = min(len(text), match.end() + 80)
                 context = text[start_context:end_context]
                 
                 numbers.append(DetectedNumber(
@@ -184,8 +184,22 @@ class ScoringAnalyzer:
         context_lower = number.context.lower()
         
         # Skip common non-score numbers (ages, dates, durations, etc.)
-        if any(word in context_lower for word in ['minutos', 'años', 'edad', 'fecha', 'duró', 'tiempo', 'mes', 'día']):
+        # Use word boundaries to avoid matching partial words
+        exclusion_patterns = [
+            r'\bminutos?\b', r'\baños?\b', r'\bedad\b', r'\bfecha\b', 
+            r'\bduró\b', r'\btiempo\b', r'\bmes(es)?\b', r'\bdías?\b',
+            r'\bhoras?\b', r'\bsegundos?\b', r'\bmeses\b'
+        ]
+        
+        if any(re.search(pattern, context_lower) for pattern in exclusion_patterns):
             return
+        
+        # Get the immediate context (30 chars before and after the number)
+        # This helps ensure we're matching keywords to the right number
+        start_pos = number.start
+        immediate_start = max(0, start_pos - 30)
+        immediate_end = min(len(full_text), number.end + 30)
+        immediate_context = full_text[immediate_start:immediate_end].lower()
         
         # Special handling for percentiles (look for % symbol first)
         if '%' in number.context and 1 <= number.value <= 99:
@@ -193,55 +207,50 @@ class ScoringAnalyzer:
             number.interpretation = self._get_interpretation(number.value, 'percentil')
             return
         
-        # Check for exact keyword matches in order of specificity
+        # Check for exact keyword matches using immediate context for precision
         # T-scores (check before Wechsler IQ due to overlapping ranges)
-        if any(keyword in context_lower for keyword in self.score_patterns['t_score']['keywords']):
-            if 20 <= number.value <= 100:
-                number.score_type = 't_score'
-                number.interpretation = self._get_interpretation(number.value, 't_score')
-                return
+        if any(keyword in immediate_context for keyword in ['puntuación t', 't score', 't-score', 'puntaje t']) and 20 <= number.value <= 100:
+            number.score_type = 't_score'
+            number.interpretation = self._get_interpretation(number.value, 't_score')
+            return
         
         # Z-scores (check early as they have specific range)
-        if any(keyword in context_lower for keyword in self.score_patterns['z_score']['keywords']):
-            if -4 <= number.value <= 4:
-                number.score_type = 'z_score'
-                number.interpretation = self._get_interpretation(number.value, 'z_score')
-                return
+        if any(keyword in immediate_context for keyword in ['z-score', 'z score', 'puntuación z', 'puntaje z']) and -4 <= number.value <= 4:
+            number.score_type = 'z_score'
+            number.interpretation = self._get_interpretation(number.value, 'z_score')
+            return
         
         # Decatipo (check before general ranges)
-        if any(keyword in context_lower for keyword in self.score_patterns['decatipo']['keywords']):
-            if 1 <= number.value <= 10:
-                number.score_type = 'decatipo'
-                number.interpretation = self._get_interpretation(number.value, 'decatipo')
-                return
+        if 'decatipo' in immediate_context and 1 <= number.value <= 10:
+            number.score_type = 'decatipo'
+            number.interpretation = self._get_interpretation(number.value, 'decatipo')
+            return
         
         # Eneatipo (check before general ranges)
-        if any(keyword in context_lower for keyword in self.score_patterns['eneatipo']['keywords']):
-            if 1 <= number.value <= 9:
-                number.score_type = 'eneatipo'
-                number.interpretation = self._get_interpretation(number.value, 'eneatipo')
-                return
+        if 'eneatipo' in immediate_context and 1 <= number.value <= 9:
+            number.score_type = 'eneatipo'
+            number.interpretation = self._get_interpretation(number.value, 'eneatipo')
+            return
         
         # Wechsler subtests (check before IQ as they are more specific)
-        if any(keyword in context_lower for keyword in self.score_patterns['wechsler_subtest']['keywords']):
-            if 1 <= number.value <= 19:
-                number.score_type = 'wechsler_subtest'
-                number.interpretation = self._get_interpretation(number.value, 'wechsler_subtest')
-                return
+        subtest_keywords = ['comprensión', 'semejanzas', 'vocabulario', 'información', 'aritmética', 'dígitos', 'memoria', 'búsqueda', 'claves', 'cubos', 'matrices', 'conceptos', 'puntos escalares', 'escalar']
+        if any(keyword in immediate_context for keyword in subtest_keywords) and 1 <= number.value <= 19:
+            number.score_type = 'wechsler_subtest'
+            number.interpretation = self._get_interpretation(number.value, 'wechsler_subtest')
+            return
         
         # Wechsler IQ scores (check after subtests and with specific keywords)
-        if any(keyword in context_lower for keyword in ['wechsler', 'wisc', 'wais', 'wppsi', 'coeficiente intelectual', 'ci', 'iq']):
-            if 40 <= number.value <= 160:
-                number.score_type = 'wechsler_iq'
-                number.interpretation = self._get_interpretation(number.value, 'wechsler_iq')
-                return
+        iq_keywords = ['wechsler', 'wisc', 'wais', 'wppsi', 'coeficiente intelectual', 'ci', 'iq']
+        if any(keyword in immediate_context for keyword in iq_keywords) and 40 <= number.value <= 160:
+            number.score_type = 'wechsler_iq'
+            number.interpretation = self._get_interpretation(number.value, 'wechsler_iq')
+            return
         
         # Percentiles (without % symbol, check last as most general)
-        if any(keyword in context_lower for keyword in self.score_patterns['percentil']['keywords']):
-            if 1 <= number.value <= 99:
-                number.score_type = 'percentil'
-                number.interpretation = self._get_interpretation(number.value, 'percentil')
-                return
+        if 'percentil' in immediate_context and 1 <= number.value <= 99:
+            number.score_type = 'percentil'
+            number.interpretation = self._get_interpretation(number.value, 'percentil')
+            return
     
     def _get_interpretation(self, value: float, score_type: str) -> str:
         """Gets the interpretation for a specific score value and type"""
