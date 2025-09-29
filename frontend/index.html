@@ -1,30 +1,236 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>OCR PDF Drag & Drop</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OCR PDF Server - Extractor de Texto</title>
   <style>
-    #dropzone { border: 2px dashed #aaa; padding: 40px; text-align: center; cursor: pointer;}
-    #result { white-space: pre-wrap; margin-top: 20px; background: #f9f9f9; border: 1px solid #ddd; padding: 20px;}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 300;
+      font-size: 2.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    
+    #dropzone {
+      border: 3px dashed #ccc;
+      border-radius: 10px;
+      padding: 60px 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+      margin: 20px;
+    }
+    
+    #dropzone:hover {
+      border-color: #667eea;
+      background: #f0f2ff;
+      transform: translateY(-2px);
+    }
+    
+    #dropzone.dragover {
+      border-color: #667eea;
+      background: #e8ecff;
+      transform: scale(1.02);
+    }
+    
+    .dropzone-content {
+      pointer-events: none;
+    }
+    
+    .dropzone-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: #667eea;
+    }
+    
+    .dropzone-text {
+      font-size: 1.2rem;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    
+    .dropzone-subtext {
+      font-size: 0.9rem;
+      color: #999;
+    }
+    
+    #result {
+      margin: 20px;
+      min-height: 200px;
+    }
+    
+    .result-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .result-content {
+      padding: 20px;
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+      background: #f8f9fa;
+      line-height: 1.6;
+      max-height: 500px;
+      overflow-y: auto;
+      border: 1px solid #e9ecef;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #667eea;
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 5px;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .success {
+      background: #d4edda;
+      color: #155724;
+      padding: 15px;
+      border-radius: 5px;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      background: #e9ecef;
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      color: #666;
+      border-top: 1px solid #dee2e6;
+    }
+    
+    input[type="file"] {
+      display: none;
+    }
+    
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+      
+      #dropzone {
+        margin: 10px;
+        padding: 40px 20px;
+      }
+      
+      .dropzone-text {
+        font-size: 1rem;
+      }
+      
+      #result {
+        margin: 10px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>OCR PDF Drag & Drop</h1>
-  <div id="dropzone">Arrastra tu PDF aquí o haz clic para seleccionar</div>
-  <div id="result"></div>
-  <input type="file" id="fileInput" style="display: none;" accept="application/pdf">
+  <div class="container">
+    <h1>📄 OCR PDF Server</h1>
+    <div class="card">
+      <div id="dropzone">
+        <div class="dropzone-content">
+          <div class="dropzone-icon">📁</div>
+          <div class="dropzone-text">Arrastra tu archivo PDF aquí</div>
+          <div class="dropzone-subtext">o haz clic para seleccionar un archivo</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card" id="result-card" style="display: none;">
+      <div class="result-header">
+        <span>📝</span>
+        <span>Texto Extraído</span>
+      </div>
+      <div id="result"></div>
+      <div class="stats" id="stats" style="display: none;"></div>
+    </div>
+  </div>
+  
+  <input type="file" id="fileInput" accept="application/pdf">
+  
   <script>
     const dropzone = document.getElementById('dropzone');
     const result = document.getElementById('result');
+    const resultCard = document.getElementById('result-card');
     const fileInput = document.getElementById('fileInput');
+    const stats = document.getElementById('stats');
 
     dropzone.addEventListener('click', () => fileInput.click());
-    dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.style.background = '#eef'; });
-    dropzone.addEventListener('dragleave', e => { dropzone.style.background = ''; });
+    
+    dropzone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+    
+    dropzone.addEventListener('dragleave', e => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+    });
+    
     dropzone.addEventListener('drop', async e => {
       e.preventDefault();
-      dropzone.style.background = '';
+      dropzone.classList.remove('dragover');
       handleFiles(e.dataTransfer.files);
     });
+    
     fileInput.addEventListener('change', () => {
       handleFiles(fileInput.files);
     });
@@ -32,53 +238,72 @@
     async function handleFiles(files) {
       const file = files[0];
       if (!file || file.type !== 'application/pdf') {
-        alert('Sólo se permiten archivos PDF');
+        showError('Solo se permiten archivos PDF');
         return;
       }
+      
       const formData = new FormData();
       formData.append('file', file);
-      result.textContent = 'Procesando...';
+      
+      showLoading();
+      
       try {
         const res = await fetch('/ocr', { method: 'POST', body: formData });
-        if (!res.ok) {
-          const errorData = await res.json();
-          result.textContent = `Error: ${errorData.error || 'Error desconocido'}`;
-          return;
-        }
         const data = await res.json();
         
-        // Mostrar resultados
-        let output = '';
-        if (data.text) {
-          output += 'TEXTO EXTRAÍDO:\n' + '='.repeat(50) + '\n';
-          output += data.text + '\n\n';
+        if (!res.ok) {
+          showError(data.error || 'Error desconocido');
+          return;
         }
         
-        if (data.ascii_graph) {
-          output += 'GRÁFICO DE PUNTUACIONES:\n' + '='.repeat(50) + '\n';
-          output += data.ascii_graph + '\n\n';
-        }
-        
-        if (data.pruebas && data.pruebas.length > 0) {
-          output += 'PRUEBAS DETECTADAS:\n' + '='.repeat(50) + '\n';
-          data.pruebas.forEach(p => {
-            output += `${p.nombre}: ${p.escala} = ${p.puntuacion}\n`;
-          });
-          output += '\n';
-        }
-        
-        if (data.unknown_pruebas && data.unknown_pruebas.length > 0) {
-          output += 'POSIBLES PRUEBAS NO RECONOCIDAS:\n' + '='.repeat(50) + '\n';
-          output += data.unknown_pruebas.join(', ') + '\n\n';
-        }
-        
-        if (data.reproceso_pendiente) {
-          output += '⏳ Reprocesando con nuevas pruebas en segundo plano...\n';
-        }
-        
-        result.innerHTML = `<pre>${output}</pre>`;
+        showSuccess(data);
       } catch (e) {
-        result.textContent = `Error de conexión: ${e.message}`;
+        showError(`Error de conexión: ${e.message}`);
+      }
+    }
+    
+    function showLoading() {
+      resultCard.style.display = 'block';
+      result.innerHTML = `
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <div>Procesando PDF con OCR...</div>
+          <div style="font-size: 0.9rem; margin-top: 10px; color: #999;">
+            Esto puede tomar unos momentos dependiendo del tamaño del archivo
+          </div>
+        </div>
+      `;
+      stats.style.display = 'none';
+    }
+    
+    function showError(message) {
+      resultCard.style.display = 'block';
+      result.innerHTML = `<div class="error">❌ ${message}</div>`;
+      stats.style.display = 'none';
+    }
+    
+    function showSuccess(data) {
+      resultCard.style.display = 'block';
+      
+      if (data.text && data.text.trim()) {
+        result.innerHTML = `<div class="result-content">${data.text}</div>`;
+        
+        // Mostrar estadísticas
+        const wordCount = data.text.trim().split(/\s+/).length;
+        const charCount = data.text.length;
+        stats.innerHTML = `
+          <span>📊 Palabras: ${wordCount}</span>
+          <span>🔤 Caracteres: ${charCount}</span>
+        `;
+        stats.style.display = 'flex';
+      } else {
+        result.innerHTML = `
+          <div class="error">
+            ⚠️ No se pudo extraer texto del PDF. El archivo podría estar vacío, 
+            ser una imagen sin texto legible, o estar protegido.
+          </div>
+        `;
+        stats.style.display = 'none';
       }
     }
   </script>
