@@ -110,6 +110,25 @@
       border: 1px solid #e9ecef;
     }
     
+    .score-highlight {
+      color: #dc3545;
+      font-weight: bold;
+      background-color: #ffe6e6;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    
+    .ascii-chart {
+      padding: 20px;
+      background: #2d2d2d;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      white-space: pre;
+      overflow-x: auto;
+      border-top: 2px solid #667eea;
+      line-height: 1.4;
+    }
+    
     .loading {
       text-align: center;
       padding: 40px;
@@ -286,15 +305,53 @@
       resultCard.style.display = 'block';
       
       if (data.text && data.text.trim()) {
-        result.innerHTML = `<div class="result-content">${data.text}</div>`;
+        // Highlight scores in text if available
+        let displayText = data.text;
+        
+        if (data.scores && data.scores.length > 0) {
+          // Create a map of score values to highlight
+          const scoreValues = new Set();
+          data.scores.forEach(scoreInfo => {
+            // scoreInfo can be [score, label] or [score, label, type]
+            const score = Array.isArray(scoreInfo) ? scoreInfo[0] : scoreInfo;
+            scoreValues.add(score.toString());
+            // Also add formatted versions
+            scoreValues.add(Math.round(score).toString());
+            if (score % 1 !== 0) {
+              scoreValues.add(score.toFixed(1));
+            }
+          });
+          
+          // Highlight numeric values that are scores
+          scoreValues.forEach(scoreStr => {
+            // Use word boundaries to match whole numbers only
+            const regex = new RegExp(`\\b${scoreStr}\\b`, 'g');
+            displayText = displayText.replace(regex, `<span class="score-highlight">${scoreStr}</span>`);
+          });
+        }
+        
+        result.innerHTML = `<div class="result-content">${displayText}</div>`;
+        
+        // Add ASCII chart if available
+        if (data.ascii_chart && data.ascii_chart.trim()) {
+          result.innerHTML += `<div class="ascii-chart">${data.ascii_chart}</div>`;
+        }
         
         // Mostrar estadísticas
         const wordCount = data.text.trim().split(/\s+/).length;
         const charCount = data.text.length;
-        stats.innerHTML = `
+        const scoreCount = data.scores ? data.scores.length : 0;
+        
+        let statsHTML = `
           <span>📊 Palabras: ${wordCount}</span>
           <span>🔤 Caracteres: ${charCount}</span>
         `;
+        
+        if (scoreCount > 0) {
+          statsHTML += `<span style="color: #dc3545;">🎯 Puntuaciones: ${scoreCount}</span>`;
+        }
+        
+        stats.innerHTML = statsHTML;
         stats.style.display = 'flex';
       } else {
         result.innerHTML = `
