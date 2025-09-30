@@ -176,6 +176,53 @@
       border-top: 1px solid #dee2e6;
     }
     
+    .analyze-button-container {
+      padding: 20px;
+      text-align: center;
+      border-top: 1px solid #dee2e6;
+    }
+    
+    .analyze-button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+    
+    .analyze-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .analyze-button:active {
+      transform: translateY(0);
+    }
+    
+    .analyze-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .score-analysis-section {
+      padding: 20px;
+      background: #f8f9fa;
+      border-top: 2px solid #667eea;
+    }
+    
+    .score-results {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    
     input[type="file"] {
       display: none;
     }
@@ -220,6 +267,19 @@
       </div>
       <div id="result"></div>
       <div class="stats" id="stats" style="display: none;"></div>
+      <div class="analyze-button-container" id="analyze-button-container" style="display: none;">
+        <button class="analyze-button" id="analyze-button">
+          🎯 Detectar Puntuaciones y Graficar
+        </button>
+      </div>
+    </div>
+    
+    <div class="card" id="score-card" style="display: none;">
+      <div class="result-header">
+        <span>📊</span>
+        <span>Análisis de Puntuaciones</span>
+      </div>
+      <div id="score-result"></div>
     </div>
   </div>
   
@@ -231,6 +291,12 @@
     const resultCard = document.getElementById('result-card');
     const fileInput = document.getElementById('fileInput');
     const stats = document.getElementById('stats');
+    const analyzeButtonContainer = document.getElementById('analyze-button-container');
+    const analyzeButton = document.getElementById('analyze-button');
+    const scoreCard = document.getElementById('score-card');
+    const scoreResult = document.getElementById('score-result');
+    
+    let currentText = '';
 
     dropzone.addEventListener('click', () => fileInput.click());
     
@@ -299,60 +365,33 @@
       resultCard.style.display = 'block';
       result.innerHTML = `<div class="error">❌ ${message}</div>`;
       stats.style.display = 'none';
+      analyzeButtonContainer.style.display = 'none';
+      scoreCard.style.display = 'none';
     }
     
     function showSuccess(data) {
       resultCard.style.display = 'block';
+      scoreCard.style.display = 'none'; // Hide score analysis when new OCR is done
       
       if (data.text && data.text.trim()) {
-        // Highlight scores in text if available
-        let displayText = data.text;
+        currentText = data.text;
         
-        if (data.scores && data.scores.length > 0) {
-          // Create a map of score values to highlight
-          const scoreValues = new Set();
-          data.scores.forEach(scoreInfo => {
-            // scoreInfo can be [score, label] or [score, label, type]
-            const score = Array.isArray(scoreInfo) ? scoreInfo[0] : scoreInfo;
-            scoreValues.add(score.toString());
-            // Also add formatted versions
-            scoreValues.add(Math.round(score).toString());
-            if (score % 1 !== 0) {
-              scoreValues.add(score.toFixed(1));
-            }
-          });
-          
-          // Highlight numeric values that are scores
-          scoreValues.forEach(scoreStr => {
-            // Use word boundaries to match whole numbers only
-            const regex = new RegExp(`\\b${scoreStr}\\b`, 'g');
-            displayText = displayText.replace(regex, `<span class="score-highlight">${scoreStr}</span>`);
-          });
-        }
-        
-        result.innerHTML = `<div class="result-content">${displayText}</div>`;
-        
-        // Add ASCII chart if available
-        if (data.ascii_chart && data.ascii_chart.trim()) {
-          result.innerHTML += `<div class="ascii-chart">${data.ascii_chart}</div>`;
-        }
+        result.innerHTML = `<div class="result-content">${data.text}</div>`;
         
         // Mostrar estadísticas
         const wordCount = data.text.trim().split(/\s+/).length;
         const charCount = data.text.length;
-        const scoreCount = data.scores ? data.scores.length : 0;
         
         let statsHTML = `
           <span>📊 Palabras: ${wordCount}</span>
           <span>🔤 Caracteres: ${charCount}</span>
         `;
         
-        if (scoreCount > 0) {
-          statsHTML += `<span style="color: #dc3545;">🎯 Puntuaciones: ${scoreCount}</span>`;
-        }
-        
         stats.innerHTML = statsHTML;
         stats.style.display = 'flex';
+        
+        // Show the analyze button
+        analyzeButtonContainer.style.display = 'block';
       } else {
         result.innerHTML = `
           <div class="error">
@@ -361,6 +400,82 @@
           </div>
         `;
         stats.style.display = 'none';
+        analyzeButtonContainer.style.display = 'none';
+      }
+    }
+    
+    // Handle score analysis button click
+    analyzeButton.addEventListener('click', async () => {
+      if (!currentText) return;
+      
+      analyzeButton.disabled = true;
+      analyzeButton.textContent = '⏳ Analizando...';
+      scoreCard.style.display = 'none';
+      
+      try {
+        const res = await fetch('/analyze-scores', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: currentText })
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+          showScoreError(data.error || 'Error desconocido');
+          return;
+        }
+        
+        showScoreAnalysis(data);
+      } catch (e) {
+        showScoreError(`Error de conexión: ${e.message}`);
+      } finally {
+        analyzeButton.disabled = false;
+        analyzeButton.textContent = '🎯 Detectar Puntuaciones y Graficar';
+      }
+    });
+    
+    function showScoreError(message) {
+      scoreCard.style.display = 'block';
+      scoreResult.innerHTML = `<div class="error" style="margin: 20px;">❌ ${message}</div>`;
+    }
+    
+    function showScoreAnalysis(data) {
+      scoreCard.style.display = 'block';
+      
+      if (data.scores && data.scores.length > 0) {
+        let scoreHTML = '<div class="score-analysis-section">';
+        scoreHTML += '<h3 style="margin-bottom: 15px; color: #667eea;">📊 Puntuaciones Detectadas</h3>';
+        scoreHTML += '<div class="score-results">';
+        
+        // List all scores
+        data.scores.forEach(scoreInfo => {
+          const score = scoreInfo[0];
+          const label = scoreInfo[1];
+          const type = scoreInfo[2] || 'desconocido';
+          scoreHTML += `<div style="padding: 8px; border-bottom: 1px solid #e9ecef;">`;
+          scoreHTML += `<strong>${label}:</strong> <span class="score-highlight">${score}</span> `;
+          scoreHTML += `<span style="font-size: 0.8rem; color: #999;">(${type})</span>`;
+          scoreHTML += `</div>`;
+        });
+        
+        scoreHTML += '</div>';
+        
+        // Add ASCII chart if available
+        if (data.ascii_chart && data.ascii_chart.trim()) {
+          scoreHTML += `<div class="ascii-chart">${data.ascii_chart}</div>`;
+        }
+        
+        scoreHTML += '</div>';
+        scoreResult.innerHTML = scoreHTML;
+      } else {
+        scoreResult.innerHTML = `
+          <div class="error" style="margin: 20px;">
+            ℹ️ No se detectaron puntuaciones en el texto.
+          </div>
+        `;
       }
     }
   </script>

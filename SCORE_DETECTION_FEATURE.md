@@ -49,10 +49,19 @@ The goal was to implement a system that:
 
 #### API Changes
 
-The `/ocr` endpoint now returns:
+**Two-Stage Architecture:**
+
+1. **`/ocr` endpoint** - Returns only OCR text:
 ```json
 {
   "text": "...",
+  "success": true
+}
+```
+
+2. **`/analyze-scores` endpoint** - Analyzes text for scores on demand:
+```json
+{
   "success": true,
   "scores": [[score, label, type], ...],
   "score_type": "wechsler" or "mixed",
@@ -64,35 +73,37 @@ The `/ocr` endpoint now returns:
 
 #### UI Changes
 
-1. **Score Highlighting**
-   - Added `.score-highlight` CSS class with red text and light red background
-   - JavaScript detects score values from API response
-   - Uses regex to find and wrap matching numbers in spans
+1. **Two-Stage Workflow**
+   - OCR text is displayed first without score analysis
+   - "Detectar Puntuaciones y Graficar" button appears below OCR text
+   - Button triggers score analysis as a separate step
+   - Score analysis results appear in a new card below
 
-2. **ASCII Chart Display**
-   - Added `.ascii-chart` CSS class with terminal-style appearance
+2. **Score Analysis Section**
+   - Separate card with "Análisis de Puntuaciones" header
+   - Lists all detected scores with their labels and types
+   - Displays ASCII charts below the score list
+   - Only visible after clicking the analysis button
+
+3. **Visual Styling**
+   - `.score-highlight` CSS class with red text and light red background
+   - `.ascii-chart` CSS class with terminal-style appearance
    - Dark background (#2d2d2d) with green text (#00ff00)
    - Monospace font for proper alignment
-   - Charts displayed below main text content
-
-3. **Statistics Update**
-   - Added score count to statistics bar
-   - Shows as "🎯 Puntuaciones: X" in red color
 
 #### Code Example
 
 ```javascript
-// Highlight scores in text
-scoreValues.forEach(scoreStr => {
-  const regex = new RegExp(`\\b${scoreStr}\\b`, 'g');
-  displayText = displayText.replace(regex, 
-    `<span class="score-highlight">${scoreStr}</span>`);
+// Button click triggers score analysis
+analyzeButton.addEventListener('click', async () => {
+  const res = await fetch('/analyze-scores', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: currentText })
+  });
+  const data = await res.json();
+  showScoreAnalysis(data);
 });
-
-// Display ASCII chart
-if (data.ascii_chart && data.ascii_chart.trim()) {
-  result.innerHTML += `<div class="ascii-chart">${data.ascii_chart}</div>`;
-}
 ```
 
 ## Supported Score Types
