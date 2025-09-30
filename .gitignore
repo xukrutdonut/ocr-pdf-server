@@ -41,3 +41,6 @@ Thumbs.db
 pruebas_psicometricas.json
 *.pdf
 test_*
+
+# Learning data (runtime generated)
+learning_data.json
