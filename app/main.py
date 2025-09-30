@@ -25,7 +25,8 @@ def detect_score_type(scores: List[float], labels: List[str] = None) -> Optional
         
         # Contar menciones de cada tipo
         for i, label in enumerate(labels_lower):
-            if 'percentil' in label:
+            # Percentil: incluye abreviaturas PC, p, P
+            if 'percentil' in label or re.search(r'\bpc\b', label) or re.search(r'\bp\b', label):
                 score_type_counts['percentil'] = score_type_counts.get('percentil', 0) + 1
             elif 'ci' in label or 'coeficiente' in label or 'iq' in label or 'wechsler' in label:
                 score_type_counts['wechsler'] = score_type_counts.get('wechsler', 0) + 1
@@ -33,9 +34,11 @@ def detect_score_type(scores: List[float], labels: List[str] = None) -> Optional
                 score_type_counts['eneatipo'] = score_type_counts.get('eneatipo', 0) + 1
             elif 'decatipo' in label or 'decil' in label:
                 score_type_counts['decatipo'] = score_type_counts.get('decatipo', 0) + 1
-            elif 'puntuación t' in label or 'puntaje t' in label or 't-score' in label:
+            # Puntuación T: incluye abreviaturas PT, pt
+            elif 'puntuación t' in label or 'puntaje t' in label or 't-score' in label or re.search(r'\bpt\b', label):
                 score_type_counts['puntuacion_t'] = score_type_counts.get('puntuacion_t', 0) + 1
-            elif 'puntuación z' in label or 'puntaje z' in label or 'z-score' in label:
+            # Puntuación Z: incluye abreviaturas Z, z
+            elif 'puntuación z' in label or 'puntaje z' in label or 'z-score' in label or re.search(r'\bz\b', label):
                 score_type_counts['puntuacion_z'] = score_type_counts.get('puntuacion_z', 0) + 1
         
         # Si hay un tipo dominante, usarlo
@@ -120,7 +123,8 @@ def classify_individual_score(score: float, label: str) -> Optional[str]:
     label_lower = label.lower()
     
     # Detección por etiqueta (más específico primero)
-    if 'percentil' in label_lower or 'percentile' in label_lower:
+    # Percentil: incluye abreviaturas PC, p, P
+    if 'percentil' in label_lower or 'percentile' in label_lower or re.search(r'\bpc\b', label_lower) or re.search(r'\bp\b', label_lower):
         return "percentil"
     # CI debe ser palabra separada, no parte de otra palabra
     if re.search(r'\bci\b', label_lower) or 'coeficiente' in label_lower or re.search(r'\biq\b', label_lower) or 'wechsler' in label_lower:
@@ -129,9 +133,11 @@ def classify_individual_score(score: float, label: str) -> Optional[str]:
         return "eneatipo"
     if 'decatipo' in label_lower or 'decil' in label_lower:
         return "decatipo"
-    if 't-score' in label_lower or 'puntuación t' in label_lower or 'puntaje t' in label_lower or 'puntaje-t' in label_lower or 'puntuacion-t' in label_lower:
+    # Puntuación T: incluye abreviaturas PT, pt
+    if 't-score' in label_lower or 'puntuación t' in label_lower or 'puntaje t' in label_lower or 'puntaje-t' in label_lower or 'puntuacion-t' in label_lower or re.search(r'\bpt\b', label_lower):
         return "puntuacion_t"
-    if 'z-score' in label_lower or 'puntuación z' in label_lower or 'puntaje z' in label_lower or 'puntaje-z' in label_lower or 'puntuacion-z' in label_lower:
+    # Puntuación Z: incluye abreviaturas Z, z
+    if 'z-score' in label_lower or 'puntuación z' in label_lower or 'puntaje z' in label_lower or 'puntaje-z' in label_lower or 'puntuacion-z' in label_lower or re.search(r'\bz\b', label_lower):
         return "puntuacion_z"
     
     # Detección por valor (menos específico)
