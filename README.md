@@ -56,9 +56,22 @@ Luego abre http://localhost:8000 en tu navegador.
 ## Docker
 
 ### Opción 1: Docker Compose (Recomendado)
+
+**Instalación inicial o después de cambios en el código:**
+```bash
+docker compose up -d --build
+```
+
+**Para iniciar el servicio existente:**
 ```bash
 docker compose up -d
 ```
+
+**Para detener el servicio:**
+```bash
+docker compose down
+```
+
 El servidor estará disponible en http://localhost:8330
 
 ### Opción 2: Docker manual
