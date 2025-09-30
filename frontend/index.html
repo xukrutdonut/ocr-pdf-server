@@ -223,6 +223,170 @@
       margin-top: 10px;
     }
     
+    .score-item {
+      padding: 12px;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .score-item:last-child {
+      border-bottom: none;
+    }
+    
+    .score-info {
+      flex: 1;
+    }
+    
+    .score-feedback-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .feedback-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    
+    .feedback-btn.correct {
+      background: #28a745;
+      color: white;
+    }
+    
+    .feedback-btn.incorrect {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .feedback-btn:hover {
+      opacity: 0.8;
+      transform: translateY(-1px);
+    }
+    
+    .feedback-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .learning-section {
+      margin-top: 20px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border: 2px dashed #667eea;
+    }
+    
+    .learning-title {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+    
+    .selection-guide {
+      background: white;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 0.9rem;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .submit-pattern-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+      transition: all 0.3s;
+    }
+    
+    .submit-pattern-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .submit-pattern-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .success-message {
+      background: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-radius: 5px;
+      margin-top: 10px;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .text-selectable {
+      user-select: text;
+      cursor: text;
+    }
+    
+    .patterns-list {
+      margin-top: 15px;
+      padding: 15px;
+      background: white;
+      border-radius: 5px;
+    }
+    
+    .pattern-item {
+      padding: 8px;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .delete-pattern-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    
     input[type="file"] {
       display: none;
     }
@@ -280,6 +444,50 @@
         <span>Análisis de Puntuaciones</span>
       </div>
       <div id="score-result"></div>
+      
+      <!-- Learning Section -->
+      <div class="learning-section" id="learning-section" style="display: none;">
+        <h3 class="learning-title">🎓 Entrenar el Sistema</h3>
+        <div class="selection-guide">
+          💡 <strong>Instrucciones:</strong> Selecciona el texto en la sección "Texto Extraído" que contiene 
+          la puntuación que deseas enseñar al sistema (por ejemplo: "PD: 85"). Luego completa el formulario 
+          abajo para añadir el patrón.
+        </div>
+        
+        <div class="form-group">
+          <label for="selected-text">Texto Seleccionado:</label>
+          <input type="text" id="selected-text" readonly placeholder="Selecciona texto arriba">
+        </div>
+        
+        <div class="form-group">
+          <label for="abbreviation">Abreviatura/Etiqueta:</label>
+          <input type="text" id="abbreviation" placeholder="Ej: PD, PC, T, etc.">
+        </div>
+        
+        <div class="form-group">
+          <label for="score-type">Tipo de Puntuación:</label>
+          <select id="score-type">
+            <option value="">Selecciona un tipo</option>
+            <option value="percentil">Percentil (0-100)</option>
+            <option value="wechsler">Wechsler/CI (40-160)</option>
+            <option value="puntuacion_t">Puntuación T (20-80)</option>
+            <option value="puntuacion_z">Puntuación Z (-3 a +3)</option>
+            <option value="eneatipo">Eneatipo (1-9)</option>
+            <option value="decatipo">Decatipo (1-10)</option>
+          </select>
+        </div>
+        
+        <button class="submit-pattern-btn" id="submit-pattern-btn">
+          ➕ Añadir Patrón
+        </button>
+        
+        <div id="pattern-message" style="display: none;"></div>
+        
+        <div class="patterns-list" id="patterns-list" style="display: none;">
+          <h4 style="margin-bottom: 10px;">Patrones Aprendidos:</h4>
+          <div id="patterns-container"></div>
+        </div>
+      </div>
     </div>
   </div>
   
@@ -295,8 +503,17 @@
     const analyzeButton = document.getElementById('analyze-button');
     const scoreCard = document.getElementById('score-card');
     const scoreResult = document.getElementById('score-result');
+    const learningSection = document.getElementById('learning-section');
+    const selectedTextInput = document.getElementById('selected-text');
+    const abbreviationInput = document.getElementById('abbreviation');
+    const scoreTypeSelect = document.getElementById('score-type');
+    const submitPatternBtn = document.getElementById('submit-pattern-btn');
+    const patternMessage = document.getElementById('pattern-message');
+    const patternsList = document.getElementById('patterns-list');
+    const patternsContainer = document.getElementById('patterns-container');
     
     let currentText = '';
+    let currentScores = [];
 
     dropzone.addEventListener('click', () => fileInput.click());
     
@@ -376,7 +593,11 @@
       if (data.text && data.text.trim()) {
         currentText = data.text;
         
-        result.innerHTML = `<div class="result-content">${data.text}</div>`;
+        result.innerHTML = `<div class="result-content text-selectable">${data.text}</div>`;
+        
+        // Add text selection listener
+        const resultContent = result.querySelector('.result-content');
+        resultContent.addEventListener('mouseup', handleTextSelection);
         
         // Mostrar estadísticas
         const wordCount = data.text.trim().split(/\s+/).length;
@@ -444,20 +665,28 @@
     
     function showScoreAnalysis(data) {
       scoreCard.style.display = 'block';
+      currentScores = data.scores || [];
       
       if (data.scores && data.scores.length > 0) {
         let scoreHTML = '<div class="score-analysis-section">';
         scoreHTML += '<h3 style="margin-bottom: 15px; color: #667eea;">📊 Puntuaciones Detectadas</h3>';
         scoreHTML += '<div class="score-results">';
         
-        // List all scores
-        data.scores.forEach(scoreInfo => {
+        // List all scores with feedback buttons
+        data.scores.forEach((scoreInfo, index) => {
           const score = scoreInfo[0];
           const label = scoreInfo[1];
           const type = scoreInfo[2] || 'desconocido';
-          scoreHTML += `<div style="padding: 8px; border-bottom: 1px solid #e9ecef;">`;
+          
+          scoreHTML += `<div class="score-item" data-index="${index}">`;
+          scoreHTML += `<div class="score-info">`;
           scoreHTML += `<strong>${label}:</strong> <span class="score-highlight">${score}</span> `;
           scoreHTML += `<span style="font-size: 0.8rem; color: #999;">(${type})</span>`;
+          scoreHTML += `</div>`;
+          scoreHTML += `<div class="score-feedback-buttons">`;
+          scoreHTML += `<button class="feedback-btn correct" onclick="submitFeedback(${index}, true)">✓ Correcto</button>`;
+          scoreHTML += `<button class="feedback-btn incorrect" onclick="submitFeedback(${index}, false)">✗ Incorrecto</button>`;
+          scoreHTML += `</div>`;
           scoreHTML += `</div>`;
         });
         
@@ -470,8 +699,218 @@
         
         scoreHTML += '</div>';
         scoreResult.innerHTML = scoreHTML;
+        
+        // Show learning section
+        learningSection.style.display = 'block';
+        loadPatterns();
       } else {
         scoreResult.innerHTML = `
+          <div class="error" style="margin: 20px;">
+            ℹ️ No se detectaron puntuaciones en el texto.
+          </div>
+        `;
+        learningSection.style.display = 'block';
+      }
+    }
+    
+    // Handle text selection
+    function handleTextSelection() {
+      const selection = window.getSelection();
+      const selectedText = selection.toString().trim();
+      
+      if (selectedText && selectedText.length > 0) {
+        selectedTextInput.value = selectedText;
+        
+        // Try to auto-extract abbreviation and value
+        const match = selectedText.match(/([A-Za-z]+)[:\s]*(-?\d+\.?\d*)/);
+        if (match) {
+          abbreviationInput.value = match[1];
+        }
+      }
+    }
+    
+    // Submit feedback about score detection
+    window.submitFeedback = async function(index, isCorrect) {
+      const scoreInfo = currentScores[index];
+      if (!scoreInfo) return;
+      
+      const [score, label, detectedType] = scoreInfo;
+      
+      // If incorrect, prompt for correct type
+      let correctType = detectedType;
+      if (!isCorrect) {
+        const types = ['percentil', 'wechsler', 'puntuacion_t', 'puntuacion_z', 'eneatipo', 'decatipo'];
+        const typeLabels = {
+          'percentil': 'Percentil (0-100)',
+          'wechsler': 'Wechsler/CI (40-160)',
+          'puntuacion_t': 'Puntuación T (20-80)',
+          'puntuacion_z': 'Puntuación Z (-3 a +3)',
+          'eneatipo': 'Eneatipo (1-9)',
+          'decatipo': 'Decatipo (1-10)'
+        };
+        
+        let options = types.map((t, i) => `${i + 1}. ${typeLabels[t]}`).join('\n');
+        let choice = prompt(`¿Cuál es el tipo correcto para "${label}: ${score}"?\n\n${options}\n\nIngresa el número:`);
+        
+        if (choice) {
+          const typeIndex = parseInt(choice) - 1;
+          if (typeIndex >= 0 && typeIndex < types.length) {
+            correctType = types[typeIndex];
+          } else {
+            alert('Selección inválida');
+            return;
+          }
+        } else {
+          return;
+        }
+      }
+      
+      try {
+        const response = await fetch('/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            score_value: score,
+            label: label,
+            detected_type: detectedType,
+            correct_type: correctType,
+            is_correct: isCorrect,
+            text_context: currentText.substring(0, 500)
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Disable feedback buttons for this score
+          const scoreItem = document.querySelector(`.score-item[data-index="${index}"]`);
+          if (scoreItem) {
+            const buttons = scoreItem.querySelectorAll('.feedback-btn');
+            buttons.forEach(btn => {
+              btn.disabled = true;
+              btn.textContent = isCorrect ? '✓ Confirmado' : '✗ Corregido';
+            });
+          }
+          
+          // If incorrect and corrected, add pattern automatically
+          if (!isCorrect && correctType !== detectedType) {
+            await addPattern(label, correctType, null);
+          }
+        }
+      } catch (e) {
+        console.error('Error submitting feedback:', e);
+        alert('Error enviando feedback');
+      }
+    };
+    
+    // Submit new pattern
+    submitPatternBtn.addEventListener('click', async () => {
+      const selectedText = selectedTextInput.value.trim();
+      const abbreviation = abbreviationInput.value.trim();
+      const scoreType = scoreTypeSelect.value;
+      
+      if (!abbreviation || !scoreType) {
+        alert('Por favor completa todos los campos requeridos');
+        return;
+      }
+      
+      await addPattern(abbreviation, scoreType, selectedText);
+    });
+    
+    // Add pattern helper function
+    async function addPattern(abbreviation, scoreType, fullContext) {
+      try {
+        submitPatternBtn.disabled = true;
+        
+        const response = await fetch('/patterns', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            abbreviation: abbreviation,
+            score_type: scoreType,
+            full_context: fullContext
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          patternMessage.className = 'success-message';
+          patternMessage.textContent = '✓ Patrón añadido correctamente';
+          patternMessage.style.display = 'block';
+          
+          // Clear form
+          selectedTextInput.value = '';
+          abbreviationInput.value = '';
+          scoreTypeSelect.value = '';
+          
+          // Reload patterns list
+          await loadPatterns();
+          
+          setTimeout(() => {
+            patternMessage.style.display = 'none';
+          }, 3000);
+        } else {
+          throw new Error(data.error || 'Error desconocido');
+        }
+      } catch (e) {
+        patternMessage.className = 'error';
+        patternMessage.textContent = `✗ Error: ${e.message}`;
+        patternMessage.style.display = 'block';
+      } finally {
+        submitPatternBtn.disabled = false;
+      }
+    }
+    
+    // Load and display learned patterns
+    async function loadPatterns() {
+      try {
+        const response = await fetch('/patterns');
+        const data = await response.json();
+        
+        if (data.success && data.patterns.length > 0) {
+          patternsList.style.display = 'block';
+          
+          let patternsHTML = '';
+          data.patterns.forEach(pattern => {
+            patternsHTML += `<div class="pattern-item">`;
+            patternsHTML += `<span><strong>${pattern.abbreviation}</strong> → ${pattern.score_type} (usado ${pattern.usage_count}x)</span>`;
+            patternsHTML += `<button class="delete-pattern-btn" onclick="deletePattern(${pattern.id})">Eliminar</button>`;
+            patternsHTML += `</div>`;
+          });
+          
+          patternsContainer.innerHTML = patternsHTML;
+        } else {
+          patternsList.style.display = 'none';
+        }
+      } catch (e) {
+        console.error('Error loading patterns:', e);
+      }
+    }
+    
+    // Delete pattern
+    window.deletePattern = async function(patternId) {
+      if (!confirm('¿Estás seguro de eliminar este patrón?')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/patterns/${patternId}`, {
+          method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          await loadPatterns();
+        } else {
+          alert('Error eliminando patrón');
+        }
+      } catch (e) {
+        console.error('Error deleting pattern:', e);
+        alert('Error eliminando patrón');
+      }
+    };
           <div class="error" style="margin: 20px;">
             ℹ️ No se detectaron puntuaciones en el texto.
           </div>

@@ -5,8 +5,24 @@ from pdf2image import convert_from_bytes
 import pytesseract
 import re
 from typing import List, Dict, Tuple, Optional
+from pydantic import BaseModel
+from app import database
 
 app = FastAPI()
+
+# Pydantic models for request validation
+class FeedbackRequest(BaseModel):
+    score_value: float
+    label: str
+    detected_type: Optional[str]
+    correct_type: str
+    is_correct: bool
+    text_context: Optional[str] = None
+
+class PatternRequest(BaseModel):
+    abbreviation: str
+    score_type: str
+    full_context: Optional[str] = None
 
 def detect_score_type(scores: List[float], labels: List[str] = None) -> Optional[str]:
     """Detecta el tipo de puntuación basándose en los valores y etiquetas encontradas"""
@@ -121,6 +137,14 @@ def generate_ascii_chart(scores: List[Tuple[float, str]], score_type: str) -> st
 def classify_individual_score(score: float, label: str) -> Optional[str]:
     """Clasifica una puntuación individual basándose en su valor y etiqueta"""
     label_lower = label.lower()
+    
+    # First, check learned patterns from database
+    learned_patterns = database.get_patterns_for_detection()
+    for score_type, abbreviations in learned_patterns.items():
+        for abbr in abbreviations:
+            # Check if abbreviation appears as whole word in label
+            if re.search(r'\b' + re.escape(abbr) + r'\b', label_lower):
+                return score_type
     
     # Detección por etiqueta (más específico primero)
     # Percentil: incluye abreviaturas PC, p, P
@@ -336,3 +360,85 @@ async def health_check():
         }
     
     return JSONResponse(health_status)
+
+@app.post("/feedback")
+async def submit_feedback(feedback: FeedbackRequest):
+    """Submit feedback about score detection accuracy"""
+    try:
+        feedback_id = database.add_feedback(
+            score_value=feedback.score_value,
+            label=feedback.label,
+            detected_type=feedback.detected_type,
+            correct_type=feedback.correct_type,
+            is_correct=feedback.is_correct,
+            text_context=feedback.text_context
+        )
+        
+        return JSONResponse({
+            "success": True,
+            "feedback_id": feedback_id,
+            "message": "Feedback recibido correctamente"
+        })
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error guardando feedback: {str(e)}"}
+        )
+
+@app.post("/patterns")
+async def add_pattern(pattern: PatternRequest):
+    """Add a new learned pattern for score detection"""
+    try:
+        pattern_id = database.add_pattern(
+            abbreviation=pattern.abbreviation,
+            score_type=pattern.score_type,
+            full_context=pattern.full_context
+        )
+        
+        return JSONResponse({
+            "success": True,
+            "pattern_id": pattern_id,
+            "message": "Patrón añadido correctamente"
+        })
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error añadiendo patrón: {str(e)}"}
+        )
+
+@app.get("/patterns")
+async def get_patterns():
+    """Get all learned patterns"""
+    try:
+        patterns = database.get_all_patterns()
+        return JSONResponse({
+            "success": True,
+            "patterns": patterns
+        })
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error obteniendo patrones: {str(e)}"}
+        )
+
+@app.delete("/patterns/{pattern_id}")
+async def delete_pattern(pattern_id: int):
+    """Delete a learned pattern"""
+    try:
+        success = database.delete_pattern(pattern_id)
+        if success:
+            return JSONResponse({
+                "success": True,
+                "message": "Patrón eliminado correctamente"
+            })
+        else:
+            return JSONResponse(
+                status_code=404,
+                content={"error": "Patrón no encontrado"}
+            )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error eliminando patrón: {str(e)}"}
+        )
+
