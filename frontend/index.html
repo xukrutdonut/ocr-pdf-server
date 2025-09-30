@@ -223,6 +223,174 @@
       margin-top: 10px;
     }
     
+    .score-item {
+      padding: 8px;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .score-item:last-child {
+      border-bottom: none;
+    }
+    
+    .score-info {
+      flex: 1;
+    }
+    
+    .feedback-buttons {
+      display: flex;
+      gap: 5px;
+      margin-left: 10px;
+    }
+    
+    .feedback-btn {
+      background: none;
+      border: 2px solid #dee2e6;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.2s ease;
+    }
+    
+    .feedback-btn:hover {
+      transform: scale(1.1);
+    }
+    
+    .feedback-btn.correct {
+      border-color: #28a745;
+      color: #28a745;
+    }
+    
+    .feedback-btn.correct:hover {
+      background: #28a745;
+      color: white;
+    }
+    
+    .feedback-btn.incorrect {
+      border-color: #dc3545;
+      color: #dc3545;
+    }
+    
+    .feedback-btn.incorrect:hover {
+      background: #dc3545;
+      color: white;
+    }
+    
+    .feedback-btn.active {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .correction-form {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 5px;
+      padding: 10px;
+      margin-top: 10px;
+      display: none;
+    }
+    
+    .correction-form.show {
+      display: block;
+    }
+    
+    .correction-form select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin: 10px 0;
+      font-size: 0.9rem;
+    }
+    
+    .correction-form button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 5px;
+      font-size: 0.9rem;
+    }
+    
+    .correction-form button:hover {
+      background: #5568d3;
+    }
+    
+    .correction-form button.cancel {
+      background: #6c757d;
+    }
+    
+    .correction-form button.cancel:hover {
+      background: #5a6268;
+    }
+    
+    .feedback-message {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      display: none;
+    }
+    
+    .feedback-message.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .learning-stats {
+      background: #e7f3ff;
+      border: 1px solid #b3d9ff;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 20px;
+      font-size: 0.9rem;
+      color: #004085;
+    }
+    
+    .learning-stats h4 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #003d7a;
+    }
+    
+    .learning-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .stat-item {
+      text-align: center;
+      padding: 10px;
+      background: white;
+      border-radius: 5px;
+    }
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 5px;
+    }
+    
     input[type="file"] {
       display: none;
     }
@@ -448,17 +616,39 @@
       if (data.scores && data.scores.length > 0) {
         let scoreHTML = '<div class="score-analysis-section">';
         scoreHTML += '<h3 style="margin-bottom: 15px; color: #667eea;">📊 Puntuaciones Detectadas</h3>';
+        scoreHTML += '<p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Ayuda al sistema a aprender: marca las puntuaciones correctas ✅ o incorrectas ❌</p>';
         scoreHTML += '<div class="score-results">';
         
-        // List all scores
-        data.scores.forEach(scoreInfo => {
+        // List all scores with feedback buttons
+        data.scores.forEach((scoreInfo, index) => {
           const score = scoreInfo[0];
           const label = scoreInfo[1];
           const type = scoreInfo[2] || 'desconocido';
-          scoreHTML += `<div style="padding: 8px; border-bottom: 1px solid #e9ecef;">`;
+          
+          scoreHTML += `<div class="score-item" data-index="${index}">`;
+          scoreHTML += `<div class="score-info">`;
           scoreHTML += `<strong>${label}:</strong> <span class="score-highlight">${score}</span> `;
           scoreHTML += `<span style="font-size: 0.8rem; color: #999;">(${type})</span>`;
           scoreHTML += `</div>`;
+          scoreHTML += `<div class="feedback-buttons">`;
+          scoreHTML += `<button class="feedback-btn correct" onclick="handleFeedback(${index}, ${score}, '${label.replace(/'/g, "\\'")}', '${type}', true)" title="Correcto">✅</button>`;
+          scoreHTML += `<button class="feedback-btn incorrect" onclick="handleFeedback(${index}, ${score}, '${label.replace(/'/g, "\\'")}', '${type}', false)" title="Incorrecto">❌</button>`;
+          scoreHTML += `</div>`;
+          scoreHTML += `</div>`;
+          scoreHTML += `<div class="correction-form" id="correction-form-${index}">`;
+          scoreHTML += `<p style="margin: 0 0 10px 0; font-weight: bold;">¿Cuál es el tipo correcto?</p>`;
+          scoreHTML += `<select id="correct-type-${index}">`;
+          scoreHTML += `<option value="percentil">Percentil (0-100)</option>`;
+          scoreHTML += `<option value="eneatipo">Eneatipo (1-9)</option>`;
+          scoreHTML += `<option value="decatipo">Decatipo (1-10)</option>`;
+          scoreHTML += `<option value="wechsler">Wechsler/CI (40-160)</option>`;
+          scoreHTML += `<option value="puntuacion_t">Puntuación T (20-80)</option>`;
+          scoreHTML += `<option value="puntuacion_z">Puntuación Z (-4 a +4)</option>`;
+          scoreHTML += `</select>`;
+          scoreHTML += `<button onclick="submitCorrection(${index}, ${score}, '${label.replace(/'/g, "\\'")}', '${type}')">Enviar</button>`;
+          scoreHTML += `<button class="cancel" onclick="cancelCorrection(${index})">Cancelar</button>`;
+          scoreHTML += `</div>`;
+          scoreHTML += `<div class="feedback-message" id="feedback-message-${index}"></div>`;
         });
         
         scoreHTML += '</div>';
@@ -468,14 +658,162 @@
           scoreHTML += `<div class="ascii-chart">${data.ascii_chart}</div>`;
         }
         
+        // Add learning stats section
+        scoreHTML += '<div class="learning-stats" id="learning-stats-section">';
+        scoreHTML += '<h4>📚 Sistema de Aprendizaje Progresivo</h4>';
+        scoreHTML += '<p style="margin: 0;">El sistema mejora con tu retroalimentación. Cargando estadísticas...</p>';
+        scoreHTML += '</div>';
+        
         scoreHTML += '</div>';
         scoreResult.innerHTML = scoreHTML;
+        
+        // Load learning stats
+        loadLearningStats();
       } else {
         scoreResult.innerHTML = `
           <div class="error" style="margin: 20px;">
             ℹ️ No se detectaron puntuaciones en el texto.
           </div>
         `;
+      }
+    }
+    
+    async function handleFeedback(index, score, label, detectedType, isCorrect) {
+      const buttons = document.querySelectorAll(`[data-index="${index}"] .feedback-btn`);
+      buttons.forEach(btn => {
+        btn.classList.add('active');
+        btn.disabled = true;
+      });
+      
+      if (!isCorrect) {
+        // Show correction form
+        document.getElementById(`correction-form-${index}`).classList.add('show');
+      } else {
+        // Submit positive feedback immediately
+        await submitFeedbackToServer(score, label, detectedType, true, null, index);
+      }
+    }
+    
+    async function submitCorrection(index, score, label, detectedType) {
+      const correctType = document.getElementById(`correct-type-${index}`).value;
+      await submitFeedbackToServer(score, label, detectedType, false, correctType, index);
+    }
+    
+    function cancelCorrection(index) {
+      document.getElementById(`correction-form-${index}`).classList.remove('show');
+      
+      // Re-enable buttons
+      const buttons = document.querySelectorAll(`[data-index="${index}"] .feedback-btn`);
+      buttons.forEach(btn => {
+        btn.classList.remove('active');
+        btn.disabled = false;
+      });
+    }
+    
+    async function submitFeedbackToServer(score, label, detectedType, isCorrect, correctType, index) {
+      try {
+        const res = await fetch('/feedback', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            score: score,
+            label: label,
+            detected_type: detectedType,
+            is_correct: isCorrect,
+            correct_type: correctType
+          })
+        });
+        
+        const data = await res.json();
+        
+        // Hide correction form if visible
+        const correctionForm = document.getElementById(`correction-form-${index}`);
+        if (correctionForm) {
+          correctionForm.classList.remove('show');
+        }
+        
+        // Show feedback message
+        const messageDiv = document.getElementById(`feedback-message-${index}`);
+        if (messageDiv) {
+          messageDiv.textContent = isCorrect 
+            ? '✅ ¡Gracias! El sistema ha aprendido de tu retroalimentación.'
+            : `✅ Corregido a: ${correctType}. El sistema ha aprendido de tu retroalimentación.`;
+          messageDiv.classList.add('show');
+          
+          // Hide message after 3 seconds
+          setTimeout(() => {
+            messageDiv.classList.remove('show');
+          }, 3000);
+        }
+        
+        // Reload learning stats
+        loadLearningStats();
+        
+      } catch (e) {
+        alert(`Error enviando retroalimentación: ${e.message}`);
+        
+        // Re-enable buttons on error
+        const buttons = document.querySelectorAll(`[data-index="${index}"] .feedback-btn`);
+        buttons.forEach(btn => {
+          btn.classList.remove('active');
+          btn.disabled = false;
+        });
+      }
+    }
+    
+    async function loadLearningStats() {
+      try {
+        const res = await fetch('/learning-stats');
+        const data = await res.json();
+        
+        if (data.success) {
+          const statsSection = document.getElementById('learning-stats-section');
+          if (statsSection) {
+            let statsHTML = '<h4>📚 Sistema de Aprendizaje Progresivo</h4>';
+            statsHTML += '<div class="learning-stats-grid">';
+            statsHTML += `<div class="stat-item">`;
+            statsHTML += `<div class="stat-value">${data.total_feedback}</div>`;
+            statsHTML += `<div class="stat-label">Total Feedback</div>`;
+            statsHTML += `</div>`;
+            statsHTML += `<div class="stat-item">`;
+            statsHTML += `<div class="stat-value">${data.positive_feedback}</div>`;
+            statsHTML += `<div class="stat-label">✅ Correctos</div>`;
+            statsHTML += `</div>`;
+            statsHTML += `<div class="stat-item">`;
+            statsHTML += `<div class="stat-value">${data.negative_feedback}</div>`;
+            statsHTML += `<div class="stat-label">❌ Corregidos</div>`;
+            statsHTML += `</div>`;
+            statsHTML += `<div class="stat-item">`;
+            statsHTML += `<div class="stat-value">${data.total_patterns}</div>`;
+            statsHTML += `<div class="stat-label">Patrones Aprendidos</div>`;
+            statsHTML += `</div>`;
+            statsHTML += '</div>';
+            
+            if (data.total_patterns > 0) {
+              statsHTML += '<p style="margin-top: 15px; margin-bottom: 5px; font-weight: bold;">Patrones más confiables:</p>';
+              statsHTML += '<div style="font-size: 0.85rem;">';
+              
+              // Sort patterns by confidence and show top 5
+              const topPatterns = data.patterns
+                .sort((a, b) => b.confidence - a.confidence)
+                .slice(0, 5);
+              
+              topPatterns.forEach(pattern => {
+                statsHTML += `<div style="padding: 5px; margin: 3px 0; background: white; border-radius: 3px;">`;
+                statsHTML += `"${pattern.label}" → ${pattern.score_type} (confianza: ${pattern.confidence})`;
+                statsHTML += `</div>`;
+              });
+              
+              statsHTML += '</div>';
+            }
+            
+            statsSection.innerHTML = statsHTML;
+          }
+        }
+      } catch (e) {
+        console.error('Error loading learning stats:', e);
       }
     }
   </script>

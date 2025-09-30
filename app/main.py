@@ -4,9 +4,36 @@ import tempfile
 from pdf2image import convert_from_bytes
 import pytesseract
 import re
+import json
+import os
 from typing import List, Dict, Tuple, Optional
+from datetime import datetime
 
 app = FastAPI()
+
+# Path for storing learning data
+LEARNING_DATA_PATH = "learning_data.json"
+
+def load_learning_data() -> Dict:
+    """Carga los datos de aprendizaje desde el archivo JSON"""
+    if os.path.exists(LEARNING_DATA_PATH):
+        try:
+            with open(LEARNING_DATA_PATH, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Error cargando datos de aprendizaje: {e}")
+            return {"patterns": [], "feedback_history": []}
+    return {"patterns": [], "feedback_history": []}
+
+def save_learning_data(data: Dict) -> bool:
+    """Guarda los datos de aprendizaje en el archivo JSON"""
+    try:
+        with open(LEARNING_DATA_PATH, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception as e:
+        print(f"Error guardando datos de aprendizaje: {e}")
+        return False
 
 def detect_score_type(scores: List[float], labels: List[str] = None) -> Optional[str]:
     """Detecta el tipo de puntuación basándose en los valores y etiquetas encontradas"""
@@ -121,6 +148,21 @@ def generate_ascii_chart(scores: List[Tuple[float, str]], score_type: str) -> st
 def classify_individual_score(score: float, label: str) -> Optional[str]:
     """Clasifica una puntuación individual basándose en su valor y etiqueta"""
     label_lower = label.lower()
+    
+    # Primero, intentar usar patrones aprendidos
+    learning_data = load_learning_data()
+    for pattern in learning_data.get("patterns", []):
+        if pattern.get("confidence", 0) >= 2:  # Al menos 2 confirmaciones positivas
+            pattern_label = pattern.get("label", "").lower()
+            pattern_type = pattern.get("score_type")
+            
+            # Buscar coincidencia parcial o exacta
+            if pattern_label in label_lower or label_lower in pattern_label:
+                # Verificar que el score esté en un rango razonable para ese tipo
+                score_min = pattern.get("score_min", score - 10)
+                score_max = pattern.get("score_max", score + 10)
+                if score_min <= score <= score_max:
+                    return pattern_type
     
     # Detección por etiqueta (más específico primero)
     # Percentil: incluye abreviaturas PC, p, P
@@ -298,6 +340,108 @@ async def analyze_scores(text: str = Body(..., embed=True)):
         return JSONResponse(
             status_code=500,
             content={"error": f"Error analizando puntuaciones: {str(e)}"}
+        )
+
+@app.post("/feedback")
+async def submit_feedback(
+    score: float = Body(...),
+    label: str = Body(...),
+    detected_type: str = Body(...),
+    is_correct: bool = Body(...),
+    correct_type: Optional[str] = Body(None)
+):
+    """Recibe retroalimentación sobre la clasificación de puntuaciones"""
+    try:
+        learning_data = load_learning_data()
+        
+        # Registrar el feedback
+        feedback_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "score": score,
+            "label": label,
+            "detected_type": detected_type,
+            "is_correct": is_correct,
+            "correct_type": correct_type if not is_correct else detected_type
+        }
+        
+        if "feedback_history" not in learning_data:
+            learning_data["feedback_history"] = []
+        learning_data["feedback_history"].append(feedback_entry)
+        
+        # Actualizar patrones aprendidos
+        if "patterns" not in learning_data:
+            learning_data["patterns"] = []
+        
+        final_type = correct_type if not is_correct and correct_type else detected_type
+        
+        # Buscar si ya existe un patrón similar
+        pattern_found = False
+        for pattern in learning_data["patterns"]:
+            if pattern["label"].lower() == label.lower() and pattern["score_type"] == final_type:
+                # Actualizar el patrón existente
+                if is_correct or (not is_correct and correct_type):
+                    pattern["confidence"] = pattern.get("confidence", 0) + 1
+                    pattern["score_min"] = min(pattern.get("score_min", score), score)
+                    pattern["score_max"] = max(pattern.get("score_max", score), score)
+                    pattern["last_updated"] = datetime.now().isoformat()
+                pattern_found = True
+                break
+        
+        # Si no existe, crear un nuevo patrón
+        if not pattern_found and (is_correct or (not is_correct and correct_type)):
+            learning_data["patterns"].append({
+                "label": label,
+                "score_type": final_type,
+                "confidence": 1,
+                "score_min": score,
+                "score_max": score,
+                "created": datetime.now().isoformat(),
+                "last_updated": datetime.now().isoformat()
+            })
+        
+        # Guardar los datos actualizados
+        if save_learning_data(learning_data):
+            return JSONResponse({
+                "success": True,
+                "message": "Retroalimentación registrada exitosamente"
+            })
+        else:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Error guardando la retroalimentación"}
+            )
+            
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error procesando retroalimentación: {str(e)}"}
+        )
+
+@app.get("/learning-stats")
+async def get_learning_stats():
+    """Obtiene estadísticas sobre el aprendizaje del sistema"""
+    try:
+        learning_data = load_learning_data()
+        
+        total_feedback = len(learning_data.get("feedback_history", []))
+        total_patterns = len(learning_data.get("patterns", []))
+        
+        # Contar feedback positivo y negativo
+        positive_feedback = sum(1 for f in learning_data.get("feedback_history", []) if f.get("is_correct", False))
+        negative_feedback = total_feedback - positive_feedback
+        
+        return JSONResponse({
+            "success": True,
+            "total_feedback": total_feedback,
+            "positive_feedback": positive_feedback,
+            "negative_feedback": negative_feedback,
+            "total_patterns": total_patterns,
+            "patterns": learning_data.get("patterns", [])
+        })
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error obteniendo estadísticas: {str(e)}"}
         )
 
 @app.get("/")
