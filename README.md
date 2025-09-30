@@ -19,6 +19,13 @@ Servidor web para extracción de texto de archivos PDF mediante OCR (Reconocimie
     - Puntuaciones Wechsler/CI (40-160)
     - Puntuaciones T (media 50, SD 10)
     - Puntuaciones Z (estandarizadas)
+- **🎓 NUEVO:** Sistema de Aprendizaje Progresivo
+  - El sistema mejora con tu retroalimentación
+  - Marca puntuaciones correctas (✅) o incorrectas (❌)
+  - Corrige clasificaciones erróneas
+  - Patrones aprendidos se priorizan en futuras detecciones
+  - Estadísticas de aprendizaje en tiempo real
+  - Ver [PROGRESSIVE_LEARNING.md](./PROGRESSIVE_LEARNING.md) para más detalles
 
 ## Requisitos
 
@@ -126,6 +133,43 @@ Extrae texto de un archivo PDF.
 
 ### GET /health
 Verifica el estado de los servicios.
+
+### POST /feedback
+Envía retroalimentación sobre la clasificación de una puntuación.
+
+**Parámetros (JSON):**
+```json
+{
+  "score": 110.0,
+  "label": "CI Total",
+  "detected_type": "wechsler",
+  "is_correct": true,
+  "correct_type": null
+}
+```
+
+**Respuesta:**
+```json
+{
+  "success": true,
+  "message": "Retroalimentación registrada exitosamente"
+}
+```
+
+### GET /learning-stats
+Obtiene estadísticas del sistema de aprendizaje progresivo.
+
+**Respuesta:**
+```json
+{
+  "success": true,
+  "total_feedback": 42,
+  "positive_feedback": 35,
+  "negative_feedback": 7,
+  "total_patterns": 12,
+  "patterns": [...]
+}
+```
 
 ## Estructura del Proyecto
 
