@@ -9,6 +9,16 @@ Servidor web para extracción de texto de archivos PDF mediante OCR (Reconocimie
 - Soporte para múltiples idiomas (Español e Inglés)
 - API REST simple y eficiente
 - Estadísticas básicas del texto extraído
+- **✨ NUEVO:** Detección automática de puntuaciones psicométricas
+  - Identifica y resalta puntuaciones en rojo
+  - Genera gráficos ASCII de barras normalizadas
+  - Soporta múltiples tipos de escalas:
+    - Percentiles (0-100)
+    - Eneatipos (1-9)
+    - Decatipos (1-10)
+    - Puntuaciones Wechsler/CI (40-160)
+    - Puntuaciones T (media 50, SD 10)
+    - Puntuaciones Z (estandarizadas)
 
 ## Requisitos
 
@@ -69,9 +79,22 @@ Extrae texto de un archivo PDF.
 ```json
 {
   "text": "Texto extraído del PDF",
-  "success": true
+  "success": true,
+  "scores": [
+    [110.0, "CI Total", "wechsler"],
+    [75.0, "Percentil General", "percentil"]
+  ],
+  "score_type": "mixed",
+  "ascii_chart": "Gráfico ASCII de las puntuaciones normalizadas..."
 }
 ```
+
+**Campos de respuesta:**
+- `text`: Texto extraído del PDF
+- `success`: Indica si la extracción fue exitosa
+- `scores`: Lista de puntuaciones detectadas (valor, etiqueta, tipo)
+- `score_type`: Tipo de puntuación detectada o "mixed" para múltiples tipos
+- `ascii_chart`: Representación visual ASCII de las puntuaciones normalizadas
 
 ### GET /health
 Verifica el estado de los servicios.
