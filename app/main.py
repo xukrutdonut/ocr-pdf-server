@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Body
 from fastapi.responses import JSONResponse, FileResponse
 import tempfile
 from pdf2image import convert_from_bytes
@@ -265,16 +265,34 @@ async def ocr_pdf(file: UploadFile = File(...)):
             content={"error": f"Error procesando el PDF: {str(e)}"}
         )
     
-    # Analizar puntuaciones en el texto
-    score_analysis = extract_scores_from_text(text)
-    
     return JSONResponse({
         "text": text.strip(),
-        "success": True,
-        "scores": score_analysis["scores"],
-        "score_type": score_analysis["score_type"],
-        "ascii_chart": score_analysis["ascii_chart"]
+        "success": True
     })
+
+@app.post("/analyze-scores")
+async def analyze_scores(text: str = Body(..., embed=True)):
+    """Analiza un texto para detectar puntuaciones y generar gráficos ASCII"""
+    if not text or not text.strip():
+        return JSONResponse(
+            status_code=400,
+            content={"error": "El texto no puede estar vacío"}
+        )
+    
+    try:
+        score_analysis = extract_scores_from_text(text)
+        
+        return JSONResponse({
+            "success": True,
+            "scores": score_analysis["scores"],
+            "score_type": score_analysis["score_type"],
+            "ascii_chart": score_analysis["ascii_chart"]
+        })
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error analizando puntuaciones: {str(e)}"}
+        )
 
 @app.get("/")
 async def index():
