@@ -74,6 +74,21 @@ docker compose down
 
 El servidor estará disponible en http://localhost:8330
 
+**Solución de problemas:**
+Si después de hacer `docker compose up -d --build` sigues viendo una versión antigua, prueba:
+```bash
+# Detener y eliminar el contenedor
+docker compose down
+
+# Limpiar la caché de Docker para forzar una reconstrucción completa
+docker compose build --no-cache
+
+# Iniciar el servicio
+docker compose up -d
+```
+
+También puede ser necesario limpiar el caché del navegador (Ctrl+F5 o Cmd+Shift+R).
+
 ### Opción 2: Docker manual
 ```bash
 docker build -t ocr-pdf-server .
