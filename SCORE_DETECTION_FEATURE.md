@@ -111,7 +111,7 @@ analyzeButton.addEventListener('click', async () => {
 ### 1. Percentiles (0-100)
 - **Range**: 0-100
 - **Normalization**: score / 100
-- **Keywords**: "percentil", "percentile"
+- **Keywords**: "percentil", "percentile", **"PC"**, **"p"**, **"P"** (abbreviations)
 - **Use case**: Educational assessments, standardized tests
 
 ### 2. Eneatipos (1-9)
@@ -135,18 +135,20 @@ analyzeButton.addEventListener('click', async () => {
 ### 5. T-Scores (20-80)
 - **Range**: 20-80
 - **Normalization**: (score - 20) / 60
-- **Keywords**: "t-score", "puntuación t", "puntaje t"
+- **Keywords**: "t-score", "puntuación t", "puntaje t", **"PT"**, **"pt"** (abbreviations)
 - **Use case**: Personality assessments, emotional scales
 
 ### 6. Z-Scores (-4 to +4)
 - **Range**: -4 to +4
 - **Normalization**: (score + 3) / 6
-- **Keywords**: "z-score", "puntuación z", "puntaje z"
+- **Keywords**: "z-score", "puntuación z", "puntaje z", **"z"**, **"Z"** (abbreviations)
 - **Use case**: Standardized scores, statistical analysis
 
 ## Examples
 
-### Input Text
+### Example 1: Full Keywords
+
+#### Input Text
 ```
 Resultados Wechsler:
 CI Total: 110
@@ -157,7 +159,7 @@ Percentil General: 75
 Percentil Verbal: 84
 ```
 
-### Output
+#### Output
 ```
 ============================================================
 GRÁFICA DE PUNTUACIONES NORMALIZADAS
@@ -177,6 +179,59 @@ Tipo de puntuación detectado: PERCENTIL
 
    Percentil General (  75.0): ██████████████████████████████            75.0%
     Percentil Verbal (  84.0): █████████████████████████████████         84.0%
+
+============================================================
+```
+
+### Example 2: Using Abbreviations (NEW)
+
+#### Input Text
+```
+Puntuaciones Estandarizadas:
+Z: 1.5
+PT: 65
+PC: 85
+CI Total: 110
+```
+
+#### Output
+```
+============================================================
+GRÁFICA DE PUNTUACIONES NORMALIZADAS
+Tipo de puntuación detectado: PUNTUACION_Z
+============================================================
+
+Z (   1.5): ██████████████████████████████            75.0%
+
+============================================================
+
+
+============================================================
+GRÁFICA DE PUNTUACIONES NORMALIZADAS
+Tipo de puntuación detectado: PUNTUACION_T
+============================================================
+
+PT (  65.0): ██████████████████████████████            75.0%
+
+============================================================
+
+
+============================================================
+GRÁFICA DE PUNTUACIONES NORMALIZADAS
+Tipo de puntuación detectado: PERCENTIL
+============================================================
+
+PC (  85.0): ██████████████████████████████████        85.0%
+
+============================================================
+
+
+============================================================
+GRÁFICA DE PUNTUACIONES NORMALIZADAS
+Tipo de puntuación detectado: WECHSLER
+============================================================
+
+CI Total ( 110.0): ███████████████████████                   58.3%
 
 ============================================================
 ```
