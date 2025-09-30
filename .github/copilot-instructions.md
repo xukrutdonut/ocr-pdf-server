@@ -9,6 +9,11 @@ This is an OCR PDF Server that extracts text from PDF files using Optical Charac
 - Support for multiple languages (Spanish and English)
 - Simple and efficient REST API
 - Basic text statistics from extracted content
+- **Automatic psychometric score detection and visualization**
+  - Detects and classifies scores from multiple scale types
+  - Highlights scores in the UI
+  - Generates ASCII bar charts of normalized scores
+  - Supports percentiles, eneatipos, decatipos, Wechsler/CI, T-scores, and Z-scores
 
 ## Tech Stack
 
@@ -68,7 +73,7 @@ docker compose up -d  # Runs on port 8330
 ## API Endpoints
 
 ### POST /ocr
-Extracts text from uploaded PDF files.
+Extracts text from uploaded PDF files with automatic score detection.
 
 **Parameters:**
 - `file`: PDF file (multipart/form-data)
@@ -77,9 +82,22 @@ Extracts text from uploaded PDF files.
 ```json
 {
   "text": "Extracted text from PDF",
-  "success": true
+  "success": true,
+  "scores": [
+    [110.0, "CI Total", "wechsler"],
+    [75.0, "Percentil General", "percentil"]
+  ],
+  "score_type": "mixed",
+  "ascii_chart": "ASCII bar chart of normalized scores..."
 }
 ```
+
+**Response Fields:**
+- `text`: Extracted text from the PDF
+- `success`: Boolean indicating if extraction was successful
+- `scores`: List of detected scores as [value, label, type]
+- `score_type`: Detected score type or "mixed" for multiple types
+- `ascii_chart`: Visual ASCII representation of normalized scores
 
 **Error Response:**
 ```json
@@ -88,13 +106,95 @@ Extracts text from uploaded PDF files.
 }
 ```
 
+### POST /analyze-scores
+Analyzes text to detect and visualize psychometric scores.
+
+**Parameters:**
+- `text`: Text string to analyze (JSON body)
+
+**Request Body:**
+```json
+{
+  "text": "CI Total: 110\nPercentil General: 75"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "scores": [
+    [110.0, "CI Total", "wechsler"],
+    [75.0, "Percentil General", "percentil"]
+  ],
+  "score_type": "mixed",
+  "ascii_chart": "ASCII bar chart visualization..."
+}
+```
+
+**Error Response:**
+```json
+{
+  "error": "El texto no puede estar vacío"
+}
+```
+
 ### GET /health
 Health check endpoint that verifies:
 - Tesseract OCR availability and version
 - pdf2image module functionality
 
+**Response:**
+```json
+{
+  "status": "healthy",
+  "checks": {
+    "tesseract": {"status": "ok", "version": "4.1.1"},
+    "pdf2image": {"status": "ok"}
+  }
+}
+```
+
 ### GET /
 Serves the main web interface (frontend/index.html)
+
+## Score Detection System
+
+The application includes an advanced score detection system that identifies and classifies psychometric test scores from extracted text.
+
+### Supported Score Types
+
+1. **Percentiles (0-100)**: Educational assessments, standardized tests
+   - Keywords: "percentil", "percentile"
+   - Normalization: `score / 100`
+
+2. **Eneatipos (1-9)**: Nine-point attention and cognitive scales
+   - Keywords: "eneatipo", "eneagrama"
+   - Normalization: `(score - 1) / 8`
+
+3. **Decatipos (1-10)**: Ten-point scales, deciles
+   - Keywords: "decatipo", "decil"
+   - Normalization: `(score - 1) / 9`
+
+4. **Wechsler/CI Scores (40-160)**: Intelligence quotient tests (WISC, WAIS)
+   - Keywords: "ci", "coeficiente", "iq", "wechsler"
+   - Normalization: `(score - 40) / 120`
+
+5. **T-Scores (20-80)**: Personality assessments, emotional scales
+   - Keywords: "t-score", "puntuación t", "puntaje t"
+   - Normalization: `(score - 20) / 60`
+
+6. **Z-Scores (-4 to +4)**: Standardized scores, statistical analysis
+   - Keywords: "z-score", "puntuación z", "puntaje z"
+   - Normalization: `(score + 3) / 6`
+
+### Score Detection Functions
+
+- **`classify_individual_score(score, label)`**: Classifies a single score based on value and label
+- **`detect_score_type(scores, labels)`**: Detects dominant score type from a list
+- **`normalize_score(score, score_type)`**: Normalizes scores to 0-1 range
+- **`generate_ascii_chart(scores, score_type)`**: Creates ASCII bar chart visualization
+- **`extract_scores_from_text(text)`**: Main function that extracts and analyzes scores from text
 
 ## Code Style and Conventions
 
@@ -192,11 +292,45 @@ async def new_endpoint(file: UploadFile = File(...)):
     return JSONResponse({"success": True, "result": "..."})
 ```
 
+### Working with Score Detection
+When adding or modifying score detection:
+```python
+# Extract scores from text
+score_analysis = extract_scores_from_text(text)
+
+# Access the results
+scores = score_analysis["scores"]  # List of [value, label, type]
+score_type = score_analysis["score_type"]  # Detected type or "mixed"
+ascii_chart = score_analysis["ascii_chart"]  # Visual representation
+
+# Classify individual scores
+score_type = classify_individual_score(value, label)
+
+# Normalize for visualization
+normalized = normalize_score(value, score_type)
+```
+
 ### File Validation Pattern
 Always validate:
 1. File extension (.pdf)
 2. File size (not empty, reasonable size)
 3. File content (not corrupted)
+
+## Frontend Features
+
+### Score Visualization
+The frontend (`frontend/index.html`) includes:
+- Automatic score highlighting in red within extracted text
+- "Detect Scores and Chart" button for manual analysis
+- ASCII chart display for normalized scores
+- Visual feedback for score detection results
+
+### UI Components
+- Drag-and-drop file upload area
+- Text extraction results display
+- Statistics panel (word count, character count, line count)
+- Score analysis card with charts
+- Responsive design for mobile devices
 
 ## Security Considerations
 
@@ -211,6 +345,12 @@ Always validate:
 - Keep Python dependencies updated
 - Verify Docker image builds successfully
 - Test OCR accuracy with sample documents
+- When adding new score types:
+  1. Add classification logic to `classify_individual_score()`
+  2. Add normalization formula to `normalize_score()`
+  3. Update documentation with new score type details
+  4. Consider keyword variations for label matching
+  5. Test with real documents containing the new score type
 
 ## When Contributing
 
@@ -219,3 +359,8 @@ Always validate:
 3. Update this documentation if adding new functionality
 4. Test with both Spanish and English text
 5. Verify Docker deployment still works
+6. If modifying score detection:
+   - Test with sample PDFs containing various score types
+   - Verify ASCII chart generation works correctly
+   - Ensure frontend highlighting displays properly
+   - Check normalization formulas are accurate
