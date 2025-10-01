@@ -67,6 +67,9 @@ def detect_score_type(scores: List[float], labels: List[str] = None) -> Optional
             # Puntuación Z: incluye abreviaturas Z, z
             elif 'puntuación z' in label or 'puntaje z' in label or 'z-score' in label or re.search(r'\bz\b', label):
                 score_type_counts['puntuacion_z'] = score_type_counts.get('puntuacion_z', 0) + 1
+            # Puntuación Estandarizada (PE): media 10, SD 3, incluye abreviaturas PE, Pe, pe
+            elif 'puntuación estandarizada' in label or 'puntuacion estandarizada' in label or re.search(r'\bpe\b', label):
+                score_type_counts['puntuacion_estandarizada'] = score_type_counts.get('puntuacion_estandarizada', 0) + 1
         
         # Si hay un tipo dominante, usarlo
         if score_type_counts:
@@ -98,6 +101,10 @@ def detect_score_type(scores: List[float], labels: List[str] = None) -> Optional
     if all(-4 <= s <= 4 for s in scores) and any(s < 0 for s in scores):
         return "puntuacion_z"
     
+    # Puntuación Estandarizada (PE): media 10, SD 3, rango típico 1-19
+    if all(1 <= s <= 19 for s in scores) and any(7 <= s <= 13 for s in scores):
+        return "puntuacion_estandarizada"
+    
     return None
 
 def normalize_score(score: float, score_type: str) -> float:
@@ -117,6 +124,9 @@ def normalize_score(score: float, score_type: str) -> float:
     elif score_type == "puntuacion_z":
         # Z-score: -3 a +3 -> 0-1
         return max(0, min(1, (score + 3) / 6))
+    elif score_type == "puntuacion_estandarizada":
+        # PE: media 10, SD 3, rango típico 1-19 -> 0-1
+        return max(0, min(1, (score - 1) / 18))
     elif score_type == "no_estandarizada":
         # No se grafica, devolver None o 0
         return 0.5
@@ -184,6 +194,9 @@ def classify_individual_score(score: float, label: str) -> Optional[str]:
     # Puntuación Z: incluye abreviaturas Z, z
     if 'z-score' in label_lower or 'puntuación z' in label_lower or 'puntaje z' in label_lower or 'puntaje-z' in label_lower or 'puntuacion-z' in label_lower or re.search(r'\bz\b', label_lower):
         return "puntuacion_z"
+    # Puntuación Estandarizada (PE): incluye abreviaturas PE, Pe, pe
+    if 'puntuación estandarizada' in label_lower or 'puntuacion estandarizada' in label_lower or 'puntaje estandarizado' in label_lower or re.search(r'\bpe\b', label_lower):
+        return "puntuacion_estandarizada"
     
     # Detección por valor (menos específico)
     # Priorizar rangos más específicos/restrictivos primero
@@ -191,6 +204,10 @@ def classify_individual_score(score: float, label: str) -> Optional[str]:
     # Puntuación Z: típicamente -4 a +4 (más restrictivo, incluye negativos)
     if -4 <= score <= 4:
         return "puntuacion_z"
+    
+    # Puntuación Estandarizada (PE): media 10, SD 3, rango típico 1-19
+    if 1 <= score <= 19 and score != 10:  # Si es 10, podría ser decatipo
+        return "puntuacion_estandarizada"
     
     # Eneatipos: 1-9 (valores pequeños, enteros)
     if 1 <= score <= 9 and score == int(score):
@@ -538,6 +555,42 @@ async def get_learning_stats():
 @app.get("/")
 async def index():
     return FileResponse("frontend/index.html")
+
+@app.get("/database")
+async def database_editor():
+    return FileResponse("frontend/database.html")
+
+@app.get("/get-learning-data")
+async def get_learning_data_endpoint():
+    """Obtiene todos los datos de aprendizaje"""
+    try:
+        learning_data = load_learning_data()
+        return JSONResponse(learning_data)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error obteniendo datos: {str(e)}"}
+        )
+
+@app.post("/update-learning-data")
+async def update_learning_data_endpoint(data: Dict = Body(...)):
+    """Actualiza los datos de aprendizaje completos"""
+    try:
+        if save_learning_data(data):
+            return JSONResponse({
+                "success": True,
+                "message": "Datos actualizados exitosamente"
+            })
+        else:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Error guardando datos"}
+            )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error actualizando datos: {str(e)}"}
+        )
 
 @app.get("/health")
 async def health_check():
