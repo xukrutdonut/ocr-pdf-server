@@ -662,9 +662,32 @@
         margin: 10px;
       }
     }
+    
+    .editor-link {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      color: #667eea;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .editor-link:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    }
   </style>
 </head>
 <body>
+  <a href="/editor" class="editor-link">🗄️ Editor de Base de Datos</a>
   <div class="container">
     <h1>📄 OCR PDF Server</h1>
     <div class="card">
@@ -725,14 +748,21 @@
             <option value="wechsler">Wechsler/CI (40-160)</option>
             <option value="puntuacion_t">Puntuación T (20-80)</option>
             <option value="puntuacion_z">Puntuación Z (-4 a +4)</option>
+            <option value="puntuacion_escalar">Puntuación Escalar/PE (1-19, media 10, DE 3)</option>
           </select>
           <div class="annotation-help-text">Especifica el tipo si el sistema no lo identificó correctamente</div>
         </div>
         
         <div class="annotation-form-group">
           <label for="annotation-abbreviation">Abreviatura (opcional):</label>
-          <input type="text" id="annotation-abbreviation" placeholder="Ej: PC, PT, CI, Z">
+          <input type="text" id="annotation-abbreviation" placeholder="Ej: PC, PT, CI, Z, PE">
           <div class="annotation-help-text">Si el texto contiene una abreviatura nueva, especifícala aquí</div>
+        </div>
+        
+        <div class="annotation-form-group">
+          <label for="annotation-test-name">Nombre del Test (opcional):</label>
+          <input type="text" id="annotation-test-name" placeholder="Ej: WISC-V, WAIS-IV, NEPSY-II">
+          <div class="annotation-help-text">Especifica el nombre del test para proporcionar contexto y mejorar futuras interpretaciones</div>
         </div>
         
         <div class="annotation-success-message" id="annotation-success-message"></div>
@@ -1202,6 +1232,7 @@
       const note = document.getElementById('annotation-note').value.trim();
       const scoreType = document.getElementById('annotation-score-type').value;
       const abbreviation = document.getElementById('annotation-abbreviation').value.trim();
+      const testName = document.getElementById('annotation-test-name').value.trim();
       
       if (!note) {
         alert('Por favor, escribe una nota o comentario.');
@@ -1224,7 +1255,8 @@
             selected_text: selectedText,
             note: note,
             score_type: scoreType || null,
-            abbreviation: abbreviation || null
+            abbreviation: abbreviation || null,
+            test_name: testName || null
           })
         });
         

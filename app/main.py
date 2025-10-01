@@ -67,6 +67,9 @@ def detect_score_type(scores: List[float], labels: List[str] = None) -> Optional
             # Puntuación Z: incluye abreviaturas Z, z
             elif 'puntuación z' in label or 'puntaje z' in label or 'z-score' in label or re.search(r'\bz\b', label):
                 score_type_counts['puntuacion_z'] = score_type_counts.get('puntuacion_z', 0) + 1
+            # Puntuación Escalar: incluye abreviaturas PE, pe
+            elif 'puntuación escalar' in label or 'puntaje escalar' in label or 'escalar' in label or re.search(r'\bpe\b', label):
+                score_type_counts['puntuacion_escalar'] = score_type_counts.get('puntuacion_escalar', 0) + 1
         
         # Si hay un tipo dominante, usarlo
         if score_type_counts:
@@ -89,6 +92,10 @@ def detect_score_type(scores: List[float], labels: List[str] = None) -> Optional
     # Puntuación de Wechsler/CI: típicamente 85-130, pero puede ir de 40-160
     if any(s > 100 for s in scores) and all(40 <= s <= 160 for s in scores):
         return "wechsler"
+    
+    # Puntuación Escalar: media 10, SD 3, rango típico 1-19
+    if all(1 <= s <= 19 and s == int(s) for s in scores) and any(7 <= s <= 13 for s in scores):
+        return "puntuacion_escalar"
     
     # Puntuación T: media 50, SD 10, rango típico 20-80
     if all(20 <= s <= 80 for s in scores) and any(40 <= s <= 60 for s in scores):
@@ -117,6 +124,9 @@ def normalize_score(score: float, score_type: str) -> float:
     elif score_type == "puntuacion_z":
         # Z-score: -3 a +3 -> 0-1
         return max(0, min(1, (score + 3) / 6))
+    elif score_type == "puntuacion_escalar":
+        # Puntuación Escalar: media 10, SD 3, rango típico 1-19
+        return max(0, min(1, (score - 1) / 18))
     return 0.5
 
 def generate_ascii_chart(scores: List[Tuple[float, str]], score_type: str) -> str:
@@ -181,6 +191,9 @@ def classify_individual_score(score: float, label: str) -> Optional[str]:
     # Puntuación Z: incluye abreviaturas Z, z
     if 'z-score' in label_lower or 'puntuación z' in label_lower or 'puntaje z' in label_lower or 'puntaje-z' in label_lower or 'puntuacion-z' in label_lower or re.search(r'\bz\b', label_lower):
         return "puntuacion_z"
+    # Puntuación Escalar: incluye abreviaturas PE, pe
+    if 'puntuación escalar' in label_lower or 'puntaje escalar' in label_lower or 'escalar' in label_lower or re.search(r'\bpe\b', label_lower):
+        return "puntuacion_escalar"
     
     # Detección por valor (menos específico)
     # Priorizar rangos más específicos/restrictivos primero
@@ -196,6 +209,10 @@ def classify_individual_score(score: float, label: str) -> Optional[str]:
     # Decatipos: 1-10 (valores pequeños, enteros)
     if 1 <= score <= 10 and score == int(score):
         return "decatipo"
+    
+    # Puntuación Escalar: media 10, SD 3, rango típico 1-19
+    if 1 <= score <= 19 and score == int(score):
+        return "puntuacion_escalar"
     
     # Puntuación T: media 50, SD 10, rango típico 20-80
     if 20 <= score <= 80:
@@ -422,7 +439,8 @@ async def save_annotation(
     selected_text: str = Body(...),
     note: str = Body(...),
     score_type: Optional[str] = Body(None),
-    abbreviation: Optional[str] = Body(None)
+    abbreviation: Optional[str] = Body(None),
+    test_name: Optional[str] = Body(None)
 ):
     """Guarda una anotación sobre texto seleccionado, incluyendo tipo de puntuación y abreviatura"""
     try:
@@ -438,7 +456,8 @@ async def save_annotation(
             "selected_text": selected_text.strip(),
             "note": note.strip(),
             "score_type": score_type,
-            "abbreviation": abbreviation
+            "abbreviation": abbreviation,
+            "test_name": test_name
         }
         
         learning_data["annotations"].append(annotation_entry)
@@ -529,9 +548,87 @@ async def get_learning_stats():
             content={"error": f"Error obteniendo estadísticas: {str(e)}"}
         )
 
+@app.get("/learning-data")
+async def get_learning_data_endpoint():
+    """Obtiene todos los datos de aprendizaje para el editor"""
+    try:
+        learning_data = load_learning_data()
+        return JSONResponse({
+            "success": True,
+            "data": learning_data
+        })
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error obteniendo datos: {str(e)}"}
+        )
+
+@app.put("/learning-data")
+async def update_learning_data_endpoint(data: Dict = Body(...)):
+    """Actualiza los datos de aprendizaje completos"""
+    try:
+        if save_learning_data(data):
+            return JSONResponse({
+                "success": True,
+                "message": "Datos actualizados exitosamente"
+            })
+        else:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Error guardando los datos"}
+            )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error actualizando datos: {str(e)}"}
+        )
+
+@app.delete("/learning-data/{data_type}/{index}")
+async def delete_learning_data_item(data_type: str, index: int):
+    """Elimina un elemento específico de los datos de aprendizaje"""
+    try:
+        learning_data = load_learning_data()
+        
+        if data_type not in ["patterns", "feedback_history", "annotations"]:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "Tipo de dato inválido"}
+            )
+        
+        if data_type not in learning_data:
+            learning_data[data_type] = []
+        
+        if 0 <= index < len(learning_data[data_type]):
+            deleted_item = learning_data[data_type].pop(index)
+            if save_learning_data(learning_data):
+                return JSONResponse({
+                    "success": True,
+                    "message": "Elemento eliminado exitosamente",
+                    "deleted_item": deleted_item
+                })
+            else:
+                return JSONResponse(
+                    status_code=500,
+                    content={"error": "Error guardando los datos"}
+                )
+        else:
+            return JSONResponse(
+                status_code=404,
+                content={"error": "Índice fuera de rango"}
+            )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error eliminando elemento: {str(e)}"}
+        )
+
 @app.get("/")
 async def index():
     return FileResponse("frontend/index.html")
+
+@app.get("/editor")
+async def editor():
+    return FileResponse("frontend/editor.html")
 
 @app.get("/health")
 async def health_check():
