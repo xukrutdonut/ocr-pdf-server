@@ -26,6 +26,12 @@ Servidor web para extracción de texto de archivos PDF mediante OCR (Reconocimie
   - Patrones aprendidos se priorizan en futuras detecciones
   - Estadísticas de aprendizaje en tiempo real
   - Ver [PROGRESSIVE_LEARNING.md](./PROGRESSIVE_LEARNING.md) para más detalles
+- **📝 NUEVO:** Selección de Texto y Anotaciones
+  - Selecciona cualquier texto del OCR con el cursor
+  - Añade notas y comentarios sobre el texto seleccionado
+  - Especifica el tipo de puntuación si no se identificó correctamente
+  - Guarda abreviaturas nuevas para enseñar al sistema
+  - Las anotaciones se almacenan y mejoran futuras detecciones
 
 ## Requisitos
 
@@ -167,9 +173,41 @@ Obtiene estadísticas del sistema de aprendizaje progresivo.
   "positive_feedback": 35,
   "negative_feedback": 7,
   "total_patterns": 12,
+  "total_annotations": 5,
   "patterns": [...]
 }
 ```
+
+### POST /save-annotation
+Guarda una anotación sobre texto seleccionado del OCR.
+
+**Parámetros (JSON):**
+```json
+{
+  "selected_text": "PT Atención: 65",
+  "note": "Esta es una puntuación T que indica nivel de atención",
+  "score_type": "puntuacion_t",
+  "abbreviation": "PT"
+}
+```
+
+**Respuesta:**
+```json
+{
+  "success": true,
+  "message": "Anotación guardada exitosamente",
+  "annotation_saved": true,
+  "pattern_added": true
+}
+```
+
+**Descripción:**
+- `selected_text`: El texto seleccionado por el usuario del resultado del OCR
+- `note`: Comentario o anotación del usuario sobre el texto
+- `score_type`: (Opcional) Tipo de puntuación si debe corregirse
+- `abbreviation`: (Opcional) Abreviatura para añadir al sistema de aprendizaje
+
+Si se proporciona una abreviatura y un tipo de puntuación, el sistema crea automáticamente un nuevo patrón de reconocimiento.
 
 ## Estructura del Proyecto
 

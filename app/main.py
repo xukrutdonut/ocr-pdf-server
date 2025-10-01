@@ -417,6 +417,89 @@ async def submit_feedback(
             content={"error": f"Error procesando retroalimentación: {str(e)}"}
         )
 
+@app.post("/save-annotation")
+async def save_annotation(
+    selected_text: str = Body(...),
+    note: str = Body(...),
+    score_type: Optional[str] = Body(None),
+    abbreviation: Optional[str] = Body(None)
+):
+    """Guarda una anotación sobre texto seleccionado, incluyendo tipo de puntuación y abreviatura"""
+    try:
+        learning_data = load_learning_data()
+        
+        # Inicializar sección de anotaciones si no existe
+        if "annotations" not in learning_data:
+            learning_data["annotations"] = []
+        
+        # Crear entrada de anotación
+        annotation_entry = {
+            "timestamp": datetime.now().isoformat(),
+            "selected_text": selected_text.strip(),
+            "note": note.strip(),
+            "score_type": score_type,
+            "abbreviation": abbreviation
+        }
+        
+        learning_data["annotations"].append(annotation_entry)
+        
+        # Si se proporciona una abreviatura y tipo de puntuación, agregarla a patrones
+        if abbreviation and score_type:
+            if "patterns" not in learning_data:
+                learning_data["patterns"] = []
+            
+            # Buscar si ya existe un patrón con esta abreviatura
+            pattern_found = False
+            for pattern in learning_data["patterns"]:
+                if pattern["label"].lower() == abbreviation.lower() and pattern["score_type"] == score_type:
+                    # Actualizar patrón existente
+                    pattern["confidence"] = pattern.get("confidence", 0) + 1
+                    pattern["last_updated"] = datetime.now().isoformat()
+                    pattern_found = True
+                    break
+            
+            # Si no existe, crear nuevo patrón
+            if not pattern_found:
+                # Intentar extraer el valor numérico del texto seleccionado
+                score_value = None
+                numbers = re.findall(r'-?\d+\.?\d*', selected_text)
+                if numbers:
+                    try:
+                        score_value = float(numbers[0])
+                    except ValueError:
+                        pass
+                
+                learning_data["patterns"].append({
+                    "label": abbreviation,
+                    "score_type": score_type,
+                    "confidence": 1,
+                    "score_min": score_value if score_value else 0,
+                    "score_max": score_value if score_value else 100,
+                    "created": datetime.now().isoformat(),
+                    "last_updated": datetime.now().isoformat(),
+                    "from_annotation": True
+                })
+        
+        # Guardar los datos actualizados
+        if save_learning_data(learning_data):
+            return JSONResponse({
+                "success": True,
+                "message": "Anotación guardada exitosamente",
+                "annotation_saved": True,
+                "pattern_added": bool(abbreviation and score_type)
+            })
+        else:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Error guardando la anotación"}
+            )
+            
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Error procesando anotación: {str(e)}"}
+        )
+
 @app.get("/learning-stats")
 async def get_learning_stats():
     """Obtiene estadísticas sobre el aprendizaje del sistema"""
@@ -425,6 +508,7 @@ async def get_learning_stats():
         
         total_feedback = len(learning_data.get("feedback_history", []))
         total_patterns = len(learning_data.get("patterns", []))
+        total_annotations = len(learning_data.get("annotations", []))
         
         # Contar feedback positivo y negativo
         positive_feedback = sum(1 for f in learning_data.get("feedback_history", []) if f.get("is_correct", False))
@@ -436,6 +520,7 @@ async def get_learning_stats():
             "positive_feedback": positive_feedback,
             "negative_feedback": negative_feedback,
             "total_patterns": total_patterns,
+            "total_annotations": total_annotations,
             "patterns": learning_data.get("patterns", [])
         })
     except Exception as e:

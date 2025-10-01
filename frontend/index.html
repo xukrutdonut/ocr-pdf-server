@@ -108,6 +108,16 @@
       max-height: 500px;
       overflow-y: auto;
       border: 1px solid #e9ecef;
+      user-select: text;
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      cursor: text;
+    }
+    
+    .result-content::selection {
+      background: #667eea;
+      color: white;
     }
     
     .score-highlight {
@@ -391,6 +401,245 @@
       margin-top: 5px;
     }
     
+    /* Annotation Modal Styles */
+    .annotation-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .annotation-modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .annotation-modal-content {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.3s ease;
+    }
+    
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    .annotation-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #667eea;
+    }
+    
+    .annotation-modal-header h3 {
+      color: #667eea;
+      margin: 0;
+      font-size: 1.3rem;
+    }
+    
+    .annotation-modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+    
+    .annotation-modal-close:hover {
+      background: #f0f0f0;
+      color: #333;
+    }
+    
+    .annotation-modal-body {
+      margin-bottom: 20px;
+    }
+    
+    .annotation-selected-text {
+      background: #f8f9fa;
+      border-left: 4px solid #667eea;
+      padding: 10px 15px;
+      margin-bottom: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #333;
+      border-radius: 5px;
+    }
+    
+    .annotation-form-group {
+      margin-bottom: 15px;
+    }
+    
+    .annotation-form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #333;
+      font-size: 0.9rem;
+    }
+    
+    .annotation-form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    .annotation-form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .annotation-form-group select,
+    .annotation-form-group input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 0.9rem;
+    }
+    
+    .annotation-form-group select:focus,
+    .annotation-form-group input[type="text"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .annotation-help-text {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 5px;
+    }
+    
+    .annotation-modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    
+    .annotation-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+    
+    .annotation-btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .annotation-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .annotation-btn-secondary {
+      background: #e9ecef;
+      color: #333;
+    }
+    
+    .annotation-btn-secondary:hover {
+      background: #dee2e6;
+    }
+    
+    .annotation-success-message {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin-top: 15px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .annotation-success-message.show {
+      display: block;
+    }
+    
+    .annotation-floating-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 999;
+    }
+    
+    .annotation-floating-btn.show {
+      display: flex;
+    }
+    
+    .annotation-floating-btn:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    }
+    
+    .annotation-floating-btn .tooltip {
+      position: absolute;
+      right: 70px;
+      background: #333;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 5px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    
+    .annotation-floating-btn:hover .tooltip {
+      opacity: 1;
+    }
+    
     input[type="file"] {
       display: none;
     }
@@ -451,6 +700,56 @@
     </div>
   </div>
   
+  <!-- Annotation Modal -->
+  <div id="annotation-modal" class="annotation-modal">
+    <div class="annotation-modal-content">
+      <div class="annotation-modal-header">
+        <h3>📝 Añadir Anotación</h3>
+        <button class="annotation-modal-close" onclick="closeAnnotationModal()">×</button>
+      </div>
+      <div class="annotation-modal-body">
+        <div class="annotation-selected-text" id="selected-text-display"></div>
+        
+        <div class="annotation-form-group">
+          <label for="annotation-note">Nota/Comentario:</label>
+          <textarea id="annotation-note" placeholder="Escribe tu anotación sobre el texto seleccionado..."></textarea>
+        </div>
+        
+        <div class="annotation-form-group">
+          <label for="annotation-score-type">Tipo de Puntuación (opcional):</label>
+          <select id="annotation-score-type">
+            <option value="">-- Seleccionar tipo --</option>
+            <option value="percentil">Percentil (0-100)</option>
+            <option value="eneatipo">Eneatipo (1-9)</option>
+            <option value="decatipo">Decatipo (1-10)</option>
+            <option value="wechsler">Wechsler/CI (40-160)</option>
+            <option value="puntuacion_t">Puntuación T (20-80)</option>
+            <option value="puntuacion_z">Puntuación Z (-4 a +4)</option>
+          </select>
+          <div class="annotation-help-text">Especifica el tipo si el sistema no lo identificó correctamente</div>
+        </div>
+        
+        <div class="annotation-form-group">
+          <label for="annotation-abbreviation">Abreviatura (opcional):</label>
+          <input type="text" id="annotation-abbreviation" placeholder="Ej: PC, PT, CI, Z">
+          <div class="annotation-help-text">Si el texto contiene una abreviatura nueva, especifícala aquí</div>
+        </div>
+        
+        <div class="annotation-success-message" id="annotation-success-message"></div>
+      </div>
+      <div class="annotation-modal-footer">
+        <button class="annotation-btn annotation-btn-secondary" onclick="closeAnnotationModal()">Cancelar</button>
+        <button class="annotation-btn annotation-btn-primary" onclick="saveAnnotation()">Guardar</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Floating Annotation Button -->
+  <button id="annotation-floating-btn" class="annotation-floating-btn">
+    <span class="tooltip">Selecciona texto y haz clic aquí para añadir una anotación</span>
+    📌
+  </button>
+  
   <input type="file" id="fileInput" accept="application/pdf">
   
   <script>
@@ -465,6 +764,9 @@
     const scoreResult = document.getElementById('score-result');
     
     let currentText = '';
+    let selectedText = '';
+    let annotationFloatingBtn = document.getElementById('annotation-floating-btn');
+    let annotationModal = document.getElementById('annotation-modal');
 
     dropzone.addEventListener('click', () => fileInput.click());
     
@@ -486,6 +788,24 @@
     
     fileInput.addEventListener('change', () => {
       handleFiles(fileInput.files);
+    });
+    
+    // Handle text selection in result
+    document.addEventListener('mouseup', handleTextSelection);
+    document.addEventListener('selectionchange', handleTextSelection);
+    
+    // Click floating button to open annotation modal
+    annotationFloatingBtn.addEventListener('click', () => {
+      if (selectedText) {
+        openAnnotationModal(selectedText);
+      }
+    });
+    
+    // Close modal when clicking outside
+    annotationModal.addEventListener('click', (e) => {
+      if (e.target === annotationModal) {
+        closeAnnotationModal();
+      }
     });
 
     async function handleFiles(files) {
@@ -789,6 +1109,15 @@
             statsHTML += `<div class="stat-value">${data.total_patterns}</div>`;
             statsHTML += `<div class="stat-label">Patrones Aprendidos</div>`;
             statsHTML += `</div>`;
+            
+            // Add annotations count if available
+            if (data.total_annotations !== undefined) {
+              statsHTML += `<div class="stat-item">`;
+              statsHTML += `<div class="stat-value">${data.total_annotations}</div>`;
+              statsHTML += `<div class="stat-label">📝 Anotaciones</div>`;
+              statsHTML += `</div>`;
+            }
+            
             statsHTML += '</div>';
             
             if (data.total_patterns > 0) {
@@ -803,6 +1132,9 @@
               topPatterns.forEach(pattern => {
                 statsHTML += `<div style="padding: 5px; margin: 3px 0; background: white; border-radius: 3px;">`;
                 statsHTML += `"${pattern.label}" → ${pattern.score_type} (confianza: ${pattern.confidence})`;
+                if (pattern.from_annotation) {
+                  statsHTML += ` <span style="color: #667eea;">📝</span>`;
+                }
                 statsHTML += `</div>`;
               });
               
@@ -814,6 +1146,111 @@
         }
       } catch (e) {
         console.error('Error loading learning stats:', e);
+      }
+    }
+    
+    // Text Selection and Annotation Functions
+    function handleTextSelection() {
+      const selection = window.getSelection();
+      const text = selection.toString().trim();
+      
+      if (text && text.length > 0) {
+        // Check if selection is within result-content
+        const resultContent = document.querySelector('.result-content');
+        if (resultContent && resultContent.contains(selection.anchorNode)) {
+          selectedText = text;
+          annotationFloatingBtn.classList.add('show');
+        } else {
+          selectedText = '';
+          annotationFloatingBtn.classList.remove('show');
+        }
+      } else {
+        selectedText = '';
+        annotationFloatingBtn.classList.remove('show');
+      }
+    }
+    
+    function openAnnotationModal(text) {
+      document.getElementById('selected-text-display').textContent = text;
+      document.getElementById('annotation-note').value = '';
+      document.getElementById('annotation-score-type').value = '';
+      document.getElementById('annotation-abbreviation').value = '';
+      
+      const successMsg = document.getElementById('annotation-success-message');
+      successMsg.classList.remove('show');
+      
+      annotationModal.classList.add('show');
+      
+      // Focus on note field
+      setTimeout(() => {
+        document.getElementById('annotation-note').focus();
+      }, 100);
+    }
+    
+    function closeAnnotationModal() {
+      annotationModal.classList.remove('show');
+      annotationFloatingBtn.classList.remove('show');
+      selectedText = '';
+      
+      // Clear selection
+      if (window.getSelection) {
+        window.getSelection().removeAllRanges();
+      }
+    }
+    
+    async function saveAnnotation() {
+      const note = document.getElementById('annotation-note').value.trim();
+      const scoreType = document.getElementById('annotation-score-type').value;
+      const abbreviation = document.getElementById('annotation-abbreviation').value.trim();
+      
+      if (!note) {
+        alert('Por favor, escribe una nota o comentario.');
+        return;
+      }
+      
+      // If abbreviation is provided, score type is required
+      if (abbreviation && !scoreType) {
+        alert('Por favor, selecciona un tipo de puntuación si especificas una abreviatura.');
+        return;
+      }
+      
+      try {
+        const res = await fetch('/save-annotation', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            selected_text: selectedText,
+            note: note,
+            score_type: scoreType || null,
+            abbreviation: abbreviation || null
+          })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok && data.success) {
+          const successMsg = document.getElementById('annotation-success-message');
+          let message = '✅ Anotación guardada exitosamente.';
+          if (data.pattern_added) {
+            message += ' Se ha añadido un nuevo patrón de abreviatura.';
+          }
+          successMsg.textContent = message;
+          successMsg.classList.add('show');
+          
+          // Reload learning stats
+          await loadLearningStats();
+          
+          // Close modal after 2 seconds
+          setTimeout(() => {
+            closeAnnotationModal();
+          }, 2000);
+        } else {
+          alert(`Error: ${data.error || 'Error desconocido'}`);
+        }
+      } catch (e) {
+        alert(`Error de conexión: ${e.message}`);
       }
     }
   </script>
