@@ -117,6 +117,9 @@ def normalize_score(score: float, score_type: str) -> float:
     elif score_type == "puntuacion_z":
         # Z-score: -3 a +3 -> 0-1
         return max(0, min(1, (score + 3) / 6))
+    elif score_type == "no_estandarizada":
+        # No se grafica, devolver None o 0
+        return 0.5
     return 0.5
 
 def generate_ascii_chart(scores: List[Tuple[float, str]], score_type: str) -> str:
@@ -266,13 +269,16 @@ def extract_scores_from_text(text: str) -> Dict:
                 scores_by_type[score_type] = []
             scores_by_type[score_type].append((score, label))
     
-    # Generar gráficas para cada tipo
+    # Generar gráficas para cada tipo (excepto no_estandarizada)
     ascii_charts = []
     all_scores_formatted = []
     
     for score_type, scores_data in scores_by_type.items():
-        chart = generate_ascii_chart(scores_data, score_type)
-        ascii_charts.append(chart)
+        # Skip graphing for non-standardized scores
+        if score_type != "no_estandarizada":
+            chart = generate_ascii_chart(scores_data, score_type)
+            if chart:  # Only add non-empty charts
+                ascii_charts.append(chart)
         all_scores_formatted.extend([(s[0], s[1], score_type) for s in scores_data])
     
     combined_chart = "\n\n".join(ascii_charts) if ascii_charts else ""

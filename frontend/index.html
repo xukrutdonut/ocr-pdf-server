@@ -130,8 +130,8 @@
     
     .ascii-chart {
       padding: 20px;
-      background: #2d2d2d;
-      color: #00ff00;
+      background: #ffffff;
+      color: #000000;
       font-family: 'Courier New', monospace;
       white-space: pre;
       overflow-x: auto;
@@ -725,6 +725,7 @@
             <option value="wechsler">Wechsler/CI (40-160)</option>
             <option value="puntuacion_t">Puntuación T (20-80)</option>
             <option value="puntuacion_z">Puntuación Z (-4 a +4)</option>
+            <option value="no_estandarizada">No es una puntuación estandarizada</option>
           </select>
           <div class="annotation-help-text">Especifica el tipo si el sistema no lo identificó correctamente</div>
         </div>
@@ -964,6 +965,7 @@
           scoreHTML += `<option value="wechsler">Wechsler/CI (40-160)</option>`;
           scoreHTML += `<option value="puntuacion_t">Puntuación T (20-80)</option>`;
           scoreHTML += `<option value="puntuacion_z">Puntuación Z (-4 a +4)</option>`;
+          scoreHTML += `<option value="no_estandarizada">No es una puntuación estandarizada</option>`;
           scoreHTML += `</select>`;
           scoreHTML += `<button onclick="submitCorrection(${index}, ${score}, '${label.replace(/'/g, "\\'")}', '${type}')">Enviar</button>`;
           scoreHTML += `<button class="cancel" onclick="cancelCorrection(${index})">Cancelar</button>`;
