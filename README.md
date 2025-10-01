@@ -19,6 +19,7 @@ Servidor web para extracción de texto de archivos PDF mediante OCR (Reconocimie
     - Puntuaciones Wechsler/CI (40-160)
     - Puntuaciones T (media 50, SD 10)
     - Puntuaciones Z (estandarizadas)
+    - **Puntuaciones Escalares/PE (1-19, media 10, DE 3)** 🆕
 - **🎓 NUEVO:** Sistema de Aprendizaje Progresivo
   - El sistema mejora con tu retroalimentación
   - Marca puntuaciones correctas (✅) o incorrectas (❌)
@@ -30,8 +31,15 @@ Servidor web para extracción de texto de archivos PDF mediante OCR (Reconocimie
   - Selecciona cualquier texto del OCR con el cursor
   - Añade notas y comentarios sobre el texto seleccionado
   - Especifica el tipo de puntuación si no se identificó correctamente
+  - **Guarda el nombre del test (ej: WISC-V, NEPSY-II) para proporcionar contexto** 🆕
   - Guarda abreviaturas nuevas para enseñar al sistema
   - Las anotaciones se almacenan y mejoran futuras detecciones
+- **🗄️ NUEVO:** Editor de Base de Datos 🆕
+  - Interfaz web completa para gestionar datos de aprendizaje
+  - Ver y editar patrones, anotaciones y retroalimentación
+  - Eliminar entradas incorrectas o duplicadas
+  - Dashboard con estadísticas en tiempo real
+  - Acceso directo desde la página principal
 
 ## Requisitos
 
@@ -184,10 +192,11 @@ Guarda una anotación sobre texto seleccionado del OCR.
 **Parámetros (JSON):**
 ```json
 {
-  "selected_text": "PT Atención: 65",
-  "note": "Esta es una puntuación T que indica nivel de atención",
-  "score_type": "puntuacion_t",
-  "abbreviation": "PT"
+  "selected_text": "PE Verbal: 12",
+  "note": "Puntuación escalar del WISC-V en comprensión verbal",
+  "score_type": "puntuacion_escalar",
+  "abbreviation": "PE",
+  "test_name": "WISC-V"
 }
 ```
 
@@ -206,8 +215,57 @@ Guarda una anotación sobre texto seleccionado del OCR.
 - `note`: Comentario o anotación del usuario sobre el texto
 - `score_type`: (Opcional) Tipo de puntuación si debe corregirse
 - `abbreviation`: (Opcional) Abreviatura para añadir al sistema de aprendizaje
+- `test_name`: (Opcional) **🆕 Nombre del test (ej: WISC-V, NEPSY-II) para proporcionar contexto**
 
 Si se proporciona una abreviatura y un tipo de puntuación, el sistema crea automáticamente un nuevo patrón de reconocimiento.
+
+### GET /learning-data 🆕
+Obtiene todos los datos de aprendizaje almacenados (patrones, anotaciones, retroalimentación).
+
+**Respuesta:**
+```json
+{
+  "success": true,
+  "data": {
+    "patterns": [...],
+    "annotations": [...],
+    "feedback_history": [...]
+  }
+}
+```
+
+### PUT /learning-data 🆕
+Actualiza los datos de aprendizaje completos. Útil para el editor de base de datos.
+
+**Parámetros (JSON):**
+```json
+{
+  "patterns": [...],
+  "annotations": [...],
+  "feedback_history": [...]
+}
+```
+
+### DELETE /learning-data/{data_type}/{index} 🆕
+Elimina un elemento específico de los datos de aprendizaje.
+
+**Parámetros de ruta:**
+- `data_type`: "patterns", "annotations", o "feedback_history"
+- `index`: Índice del elemento a eliminar (empezando en 0)
+
+**Respuesta:**
+```json
+{
+  "success": true,
+  "message": "Elemento eliminado exitosamente",
+  "deleted_item": {...}
+}
+```
+
+### GET /editor 🆕
+Sirve la interfaz web del editor de base de datos.
+
+Accede a http://localhost:8000/editor para gestionar los datos de aprendizaje del sistema.
 
 ## Estructura del Proyecto
 
