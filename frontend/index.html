@@ -667,6 +667,13 @@
 <body>
   <div class="container">
     <h1>📄 OCR PDF Server</h1>
+    
+    <div style="text-align: center; margin-bottom: 20px;">
+      <a href="/database" style="display: inline-block; background: white; color: #667eea; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'">
+        🗄️ Editor de Base de Datos
+      </a>
+    </div>
+    
     <div class="card">
       <div id="dropzone">
         <div class="dropzone-content">
@@ -725,6 +732,7 @@
             <option value="wechsler">Wechsler/CI (40-160)</option>
             <option value="puntuacion_t">Puntuación T (20-80)</option>
             <option value="puntuacion_z">Puntuación Z (-4 a +4)</option>
+            <option value="puntuacion_estandarizada">Puntuación Estandarizada PE (1-19, M=10, SD=3)</option>
             <option value="no_estandarizada">No es una puntuación estandarizada</option>
           </select>
           <div class="annotation-help-text">Especifica el tipo si el sistema no lo identificó correctamente</div>
@@ -965,6 +973,7 @@
           scoreHTML += `<option value="wechsler">Wechsler/CI (40-160)</option>`;
           scoreHTML += `<option value="puntuacion_t">Puntuación T (20-80)</option>`;
           scoreHTML += `<option value="puntuacion_z">Puntuación Z (-4 a +4)</option>`;
+          scoreHTML += `<option value="puntuacion_estandarizada">Puntuación Estandarizada PE (1-19, M=10, SD=3)</option>`;
           scoreHTML += `<option value="no_estandarizada">No es una puntuación estandarizada</option>`;
           scoreHTML += `</select>`;
           scoreHTML += `<button onclick="submitCorrection(${index}, ${score}, '${label.replace(/'/g, "\\'")}', '${type}')">Enviar</button>`;
