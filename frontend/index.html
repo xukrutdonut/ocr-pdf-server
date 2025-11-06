@@ -12,7 +12,7 @@
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
       background: #ffffff;
       color: #111;
       min-height: 100vh;
@@ -33,7 +33,6 @@
       font-weight: 700;
       font-size: 2.8rem;
       letter-spacing: -0.02em;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
     }
     
     .card {
@@ -88,12 +87,6 @@
       color: #666;
     }
     
-    #result {
-      margin: 0;
-      min-height: 200px;
-      padding: 30px;
-    }
-    
     .result-header {
       background: #0073aa;
       color: white;
@@ -113,12 +106,6 @@
       line-height: 1.8;
       max-height: 600px;
       overflow-y: auto;
-      border: none;
-      user-select: text;
-      -webkit-user-select: text;
-      -moz-user-select: text;
-      -ms-user-select: text;
-      cursor: text;
       color: #111;
       font-size: 0.95rem;
     }
@@ -157,14 +144,6 @@
       border-left: 4px solid #d63638;
     }
     
-    .success {
-      background: #f0f6fc;
-      color: #0073aa;
-      padding: 20px 30px;
-      border-radius: 0;
-      border-left: 4px solid #0073aa;
-    }
-    
     .stats {
       display: flex;
       justify-content: space-between;
@@ -173,81 +152,6 @@
       font-size: 0.95rem;
       color: #555;
       border-top: 1px solid #ddd;
-    }
-    
-    .analyze-button-container {
-      padding: 20px;
-      text-align: center;
-      border-top: 1px solid #dee2e6;
-      display: none !important;
-    }
-    
-    .analyze-button {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 12px 30px;
-      font-size: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-      font-weight: 600;
-      display: none !important;
-    }
-    
-    .analyze-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-      display: none !important;
-    }
-    
-    .analyze-button:active {
-      transform: translateY(0);
-      display: none !important;
-    }
-    
-    .analyze-button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-      display: none !important;
-    }
-    
-    .score-analysis-section {
-      padding: 20px;
-      background: #f8f9fa;
-      border-top: 2px solid #667eea;
-      display: none !important;
-    }
-    
-    .score-results {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      margin-top: 10px;
-      display: none !important;
-    }
-    
-    .score-item {
-      padding: 8px;
-      border-bottom: 1px solid #e9ecef;
-      display: none;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .score-item:last-child {
-      border-bottom: none;
-    }
-    
-    .score-info {
-      flex: 1;
-    }
-    
-    .feedback-buttons, .feedback-btn, .correction-form, .feedback-message, .learning-stats,
-    .annotation-modal, .annotation-floating-btn, .ascii-chart, .score-highlight {
-      display: none !important;
     }
     
     input[type="file"] {
@@ -268,7 +172,7 @@
         font-size: 1.1rem;
       }
       
-      #result {
+      .result-content {
         padding: 20px;
       }
     }
@@ -277,12 +181,6 @@
 <body>
   <div class="container">
     <h1>OCR PDF Server</h1>
-    
-    <div style="text-align: center; margin-bottom: 40px;">
-      <a href="/database" style="display: inline-block; background: #0073aa; color: white; padding: 12px 28px; border-radius: 0; text-decoration: none; font-weight: 600; transition: background 0.2s ease;" onmouseover="this.style.background='#005a87'" onmouseout="this.style.background='#0073aa'">
-        Editor de Base de Datos
-      </a>
-    </div>
     
     <div class="card">
       <div id="dropzone">
@@ -312,8 +210,6 @@
     const resultCard = document.getElementById('result-card');
     const fileInput = document.getElementById('fileInput');
     const stats = document.getElementById('stats');
-    
-    let currentText = '';
 
     dropzone.addEventListener('click', () => fileInput.click());
     
@@ -388,20 +284,17 @@
       resultCard.style.display = 'block';
       
       if (data.text && data.text.trim()) {
-        currentText = data.text;
-        
         result.innerHTML = `<div class="result-content">${data.text}</div>`;
         
-        // Mostrar estadísticas
         const wordCount = data.text.trim().split(/\s+/).length;
         const charCount = data.text.length;
+        const lineCount = data.text.split('\n').length;
         
-        let statsHTML = `
+        stats.innerHTML = `
           <span>📊 Palabras: ${wordCount}</span>
           <span>🔤 Caracteres: ${charCount}</span>
+          <span>📄 Líneas: ${lineCount}</span>
         `;
-        
-        stats.innerHTML = statsHTML;
         stats.style.display = 'flex';
       } else {
         result.innerHTML = `
