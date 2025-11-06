@@ -12,55 +12,58 @@
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+      background: #ffffff;
+      color: #111;
       min-height: 100vh;
-      padding: 20px;
+      padding: 0;
+      line-height: 1.8;
     }
     
     .container {
-      max-width: 1000px;
+      max-width: 1200px;
       margin: 0 auto;
+      padding: 40px 20px;
     }
     
     h1 {
-      color: white;
+      color: #0073aa;
       text-align: center;
-      margin-bottom: 30px;
-      font-weight: 300;
-      font-size: 2.5rem;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      margin-bottom: 50px;
+      font-weight: 700;
+      font-size: 2.8rem;
+      letter-spacing: -0.02em;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
     }
     
     .card {
       background: white;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      border: 1px solid #ddd;
+      border-radius: 0;
+      box-shadow: none;
       overflow: hidden;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
     
     #dropzone {
-      border: 3px dashed #ccc;
-      border-radius: 10px;
-      padding: 60px 40px;
+      border: 2px dashed #ddd;
+      border-radius: 0;
+      padding: 80px 40px;
       text-align: center;
       cursor: pointer;
-      transition: all 0.3s ease;
-      background: #f8f9fa;
-      margin: 20px;
+      transition: all 0.2s ease;
+      background: #fafafa;
+      margin: 30px 0;
     }
     
     #dropzone:hover {
-      border-color: #667eea;
-      background: #f0f2ff;
-      transform: translateY(-2px);
+      border-color: #0073aa;
+      background: #f5f5f5;
     }
     
     #dropzone.dragover {
-      border-color: #667eea;
-      background: #e8ecff;
-      transform: scale(1.02);
+      border-color: #0073aa;
+      background: #f0f0f0;
     }
     
     .dropzone-content {
@@ -68,91 +71,77 @@
     }
     
     .dropzone-icon {
-      font-size: 3rem;
-      margin-bottom: 15px;
-      color: #667eea;
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: #0073aa;
     }
     
     .dropzone-text {
-      font-size: 1.2rem;
-      color: #666;
-      margin-bottom: 10px;
+      font-size: 1.3rem;
+      color: #333;
+      margin-bottom: 12px;
+      font-weight: 600;
     }
     
     .dropzone-subtext {
-      font-size: 0.9rem;
-      color: #999;
+      font-size: 1rem;
+      color: #666;
     }
     
     #result {
-      margin: 20px;
+      margin: 0;
       min-height: 200px;
+      padding: 30px;
     }
     
     .result-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #0073aa;
       color: white;
-      padding: 15px 20px;
+      padding: 20px 30px;
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
+      font-size: 1.1rem;
     }
     
     .result-content {
-      padding: 20px;
+      padding: 30px;
       white-space: pre-wrap;
-      font-family: 'Courier New', monospace;
-      background: #f8f9fa;
-      line-height: 1.6;
-      max-height: 500px;
+      font-family: 'Courier New', Consolas, Monaco, monospace;
+      background: #fff;
+      line-height: 1.8;
+      max-height: 600px;
       overflow-y: auto;
-      border: 1px solid #e9ecef;
+      border: none;
       user-select: text;
       -webkit-user-select: text;
       -moz-user-select: text;
       -ms-user-select: text;
       cursor: text;
+      color: #111;
+      font-size: 0.95rem;
     }
     
     .result-content::selection {
-      background: #667eea;
+      background: #0073aa;
       color: white;
-    }
-    
-    .score-highlight {
-      color: #dc3545;
-      font-weight: bold;
-      background-color: #ffe6e6;
-      padding: 2px 4px;
-      border-radius: 3px;
-    }
-    
-    .ascii-chart {
-      padding: 20px;
-      background: #ffffff;
-      color: #000000;
-      font-family: 'Courier New', monospace;
-      white-space: pre;
-      overflow-x: auto;
-      border-top: 2px solid #667eea;
-      line-height: 1.4;
     }
     
     .loading {
       text-align: center;
-      padding: 40px;
-      color: #667eea;
+      padding: 60px;
+      color: #0073aa;
     }
     
     .loading-spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #667eea;
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e5e5e5;
+      border-top: 4px solid #0073aa;
       border-radius: 50%;
       animation: spin 1s linear infinite;
-      margin: 0 auto 15px;
+      margin: 0 auto 20px;
     }
     
     @keyframes spin {
@@ -161,35 +150,36 @@
     }
     
     .error {
-      background: #f8d7da;
-      color: #721c24;
-      padding: 15px;
-      border-radius: 5px;
-      border: 1px solid #f5c6cb;
+      background: #fcf0f0;
+      color: #d63638;
+      padding: 20px 30px;
+      border-radius: 0;
+      border-left: 4px solid #d63638;
     }
     
     .success {
-      background: #d4edda;
-      color: #155724;
-      padding: 15px;
-      border-radius: 5px;
-      border: 1px solid #c3e6cb;
+      background: #f0f6fc;
+      color: #0073aa;
+      padding: 20px 30px;
+      border-radius: 0;
+      border-left: 4px solid #0073aa;
     }
     
     .stats {
       display: flex;
       justify-content: space-between;
-      background: #e9ecef;
-      padding: 10px 20px;
-      font-size: 0.9rem;
-      color: #666;
-      border-top: 1px solid #dee2e6;
+      background: #f7f7f7;
+      padding: 15px 30px;
+      font-size: 0.95rem;
+      color: #555;
+      border-top: 1px solid #ddd;
     }
     
     .analyze-button-container {
       padding: 20px;
       text-align: center;
       border-top: 1px solid #dee2e6;
+      display: none !important;
     }
     
     .analyze-button {
@@ -203,27 +193,32 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
       transition: all 0.3s ease;
       font-weight: 600;
+      display: none !important;
     }
     
     .analyze-button:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      display: none !important;
     }
     
     .analyze-button:active {
       transform: translateY(0);
+      display: none !important;
     }
     
     .analyze-button:disabled {
       opacity: 0.6;
       cursor: not-allowed;
       transform: none;
+      display: none !important;
     }
     
     .score-analysis-section {
       padding: 20px;
       background: #f8f9fa;
       border-top: 2px solid #667eea;
+      display: none !important;
     }
     
     .score-results {
@@ -231,12 +226,13 @@
       padding: 15px;
       border-radius: 8px;
       margin-top: 10px;
+      display: none !important;
     }
     
     .score-item {
       padding: 8px;
       border-bottom: 1px solid #e9ecef;
-      display: flex;
+      display: none;
       justify-content: space-between;
       align-items: center;
     }
@@ -249,395 +245,9 @@
       flex: 1;
     }
     
-    .feedback-buttons {
-      display: flex;
-      gap: 5px;
-      margin-left: 10px;
-    }
-    
-    .feedback-btn {
-      background: none;
-      border: 2px solid #dee2e6;
-      border-radius: 5px;
-      padding: 5px 10px;
-      cursor: pointer;
-      font-size: 1.2rem;
-      transition: all 0.2s ease;
-    }
-    
-    .feedback-btn:hover {
-      transform: scale(1.1);
-    }
-    
-    .feedback-btn.correct {
-      border-color: #28a745;
-      color: #28a745;
-    }
-    
-    .feedback-btn.correct:hover {
-      background: #28a745;
-      color: white;
-    }
-    
-    .feedback-btn.incorrect {
-      border-color: #dc3545;
-      color: #dc3545;
-    }
-    
-    .feedback-btn.incorrect:hover {
-      background: #dc3545;
-      color: white;
-    }
-    
-    .feedback-btn.active {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    .correction-form {
-      background: #fff3cd;
-      border: 1px solid #ffc107;
-      border-radius: 5px;
-      padding: 10px;
-      margin-top: 10px;
-      display: none;
-    }
-    
-    .correction-form.show {
-      display: block;
-    }
-    
-    .correction-form select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      margin: 10px 0;
-      font-size: 0.9rem;
-    }
-    
-    .correction-form button {
-      background: #667eea;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-right: 5px;
-      font-size: 0.9rem;
-    }
-    
-    .correction-form button:hover {
-      background: #5568d3;
-    }
-    
-    .correction-form button.cancel {
-      background: #6c757d;
-    }
-    
-    .correction-form button.cancel:hover {
-      background: #5a6268;
-    }
-    
-    .feedback-message {
-      background: #d4edda;
-      border: 1px solid #c3e6cb;
-      color: #155724;
-      padding: 10px;
-      border-radius: 5px;
-      margin-top: 10px;
-      display: none;
-    }
-    
-    .feedback-message.show {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    
-    .learning-stats {
-      background: #e7f3ff;
-      border: 1px solid #b3d9ff;
-      border-radius: 8px;
-      padding: 15px;
-      margin: 20px;
-      font-size: 0.9rem;
-      color: #004085;
-    }
-    
-    .learning-stats h4 {
-      margin-top: 0;
-      margin-bottom: 10px;
-      color: #003d7a;
-    }
-    
-    .learning-stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-    
-    .stat-item {
-      text-align: center;
-      padding: 10px;
-      background: white;
-      border-radius: 5px;
-    }
-    
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #667eea;
-    }
-    
-    .stat-label {
-      font-size: 0.8rem;
-      color: #666;
-      margin-top: 5px;
-    }
-    
-    /* Annotation Modal Styles */
-    .annotation-modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      animation: fadeIn 0.3s ease;
-    }
-    
-    .annotation-modal.show {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .annotation-modal-content {
-      background: white;
-      border-radius: 15px;
-      padding: 30px;
-      max-width: 500px;
-      width: 90%;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-      animation: slideUp 0.3s ease;
-    }
-    
-    @keyframes slideUp {
-      from {
-        transform: translateY(50px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-    
-    .annotation-modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid #667eea;
-    }
-    
-    .annotation-modal-header h3 {
-      color: #667eea;
-      margin: 0;
-      font-size: 1.3rem;
-    }
-    
-    .annotation-modal-close {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: #999;
-      padding: 0;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: all 0.2s ease;
-    }
-    
-    .annotation-modal-close:hover {
-      background: #f0f0f0;
-      color: #333;
-    }
-    
-    .annotation-modal-body {
-      margin-bottom: 20px;
-    }
-    
-    .annotation-selected-text {
-      background: #f8f9fa;
-      border-left: 4px solid #667eea;
-      padding: 10px 15px;
-      margin-bottom: 15px;
-      font-family: 'Courier New', monospace;
-      font-size: 0.9rem;
-      color: #333;
-      border-radius: 5px;
-    }
-    
-    .annotation-form-group {
-      margin-bottom: 15px;
-    }
-    
-    .annotation-form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 600;
-      color: #333;
-      font-size: 0.9rem;
-    }
-    
-    .annotation-form-group textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      resize: vertical;
-      min-height: 80px;
-    }
-    
-    .annotation-form-group textarea:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    
-    .annotation-form-group select,
-    .annotation-form-group input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 0.9rem;
-    }
-    
-    .annotation-form-group select:focus,
-    .annotation-form-group input[type="text"]:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    
-    .annotation-help-text {
-      font-size: 0.8rem;
-      color: #666;
-      margin-top: 5px;
-    }
-    
-    .annotation-modal-footer {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-    }
-    
-    .annotation-btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-weight: 600;
-    }
-    
-    .annotation-btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-    
-    .annotation-btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    
-    .annotation-btn-secondary {
-      background: #e9ecef;
-      color: #333;
-    }
-    
-    .annotation-btn-secondary:hover {
-      background: #dee2e6;
-    }
-    
-    .annotation-success-message {
-      background: #d4edda;
-      border: 1px solid #c3e6cb;
-      color: #155724;
-      padding: 10px 15px;
-      border-radius: 5px;
-      margin-top: 15px;
-      display: none;
-      animation: fadeIn 0.3s ease;
-    }
-    
-    .annotation-success-message.show {
-      display: block;
-    }
-    
-    .annotation-floating-btn {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      font-size: 1.5rem;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      z-index: 999;
-    }
-    
-    .annotation-floating-btn.show {
-      display: flex;
-    }
-    
-    .annotation-floating-btn:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-    }
-    
-    .annotation-floating-btn .tooltip {
-      position: absolute;
-      right: 70px;
-      background: #333;
-      color: white;
-      padding: 8px 12px;
-      border-radius: 5px;
-      font-size: 0.8rem;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
-    
-    .annotation-floating-btn:hover .tooltip {
-      opacity: 1;
+    .feedback-buttons, .feedback-btn, .correction-form, .feedback-message, .learning-stats,
+    .annotation-modal, .annotation-floating-btn, .ascii-chart, .score-highlight {
+      display: none !important;
     }
     
     input[type="file"] {
@@ -646,38 +256,38 @@
     
     @media (max-width: 768px) {
       h1 {
-        font-size: 2rem;
+        font-size: 2.2rem;
       }
       
       #dropzone {
-        margin: 10px;
-        padding: 40px 20px;
+        margin: 20px 0;
+        padding: 60px 20px;
       }
       
       .dropzone-text {
-        font-size: 1rem;
+        font-size: 1.1rem;
       }
       
       #result {
-        margin: 10px;
+        padding: 20px;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>📄 OCR PDF Server</h1>
+    <h1>OCR PDF Server</h1>
     
-    <div style="text-align: center; margin-bottom: 20px;">
-      <a href="/database" style="display: inline-block; background: white; color: #667eea; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.2); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(0,0,0,0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'">
-        🗄️ Editor de Base de Datos
+    <div style="text-align: center; margin-bottom: 40px;">
+      <a href="/database" style="display: inline-block; background: #0073aa; color: white; padding: 12px 28px; border-radius: 0; text-decoration: none; font-weight: 600; transition: background 0.2s ease;" onmouseover="this.style.background='#005a87'" onmouseout="this.style.background='#0073aa'">
+        Editor de Base de Datos
       </a>
     </div>
     
     <div class="card">
       <div id="dropzone">
         <div class="dropzone-content">
-          <div class="dropzone-icon">📁</div>
+          <div class="dropzone-icon">📄</div>
           <div class="dropzone-text">Arrastra tu archivo PDF aquí</div>
           <div class="dropzone-subtext">o haz clic para seleccionar un archivo</div>
         </div>
@@ -691,73 +301,8 @@
       </div>
       <div id="result"></div>
       <div class="stats" id="stats" style="display: none;"></div>
-      <div class="analyze-button-container" id="analyze-button-container" style="display: none;">
-        <button class="analyze-button" id="analyze-button">
-          🎯 Detectar Puntuaciones y Graficar
-        </button>
-      </div>
-    </div>
-    
-    <div class="card" id="score-card" style="display: none;">
-      <div class="result-header">
-        <span>📊</span>
-        <span>Análisis de Puntuaciones</span>
-      </div>
-      <div id="score-result"></div>
     </div>
   </div>
-  
-  <!-- Annotation Modal -->
-  <div id="annotation-modal" class="annotation-modal">
-    <div class="annotation-modal-content">
-      <div class="annotation-modal-header">
-        <h3>📝 Añadir Anotación</h3>
-        <button class="annotation-modal-close" onclick="closeAnnotationModal()">×</button>
-      </div>
-      <div class="annotation-modal-body">
-        <div class="annotation-selected-text" id="selected-text-display"></div>
-        
-        <div class="annotation-form-group">
-          <label for="annotation-note">Nota/Comentario:</label>
-          <textarea id="annotation-note" placeholder="Escribe tu anotación sobre el texto seleccionado..."></textarea>
-        </div>
-        
-        <div class="annotation-form-group">
-          <label for="annotation-score-type">Tipo de Puntuación (opcional):</label>
-          <select id="annotation-score-type">
-            <option value="">-- Seleccionar tipo --</option>
-            <option value="percentil">Percentil (0-100)</option>
-            <option value="eneatipo">Eneatipo (1-9)</option>
-            <option value="decatipo">Decatipo (1-10)</option>
-            <option value="wechsler">Wechsler/CI (40-160)</option>
-            <option value="puntuacion_t">Puntuación T (20-80)</option>
-            <option value="puntuacion_z">Puntuación Z (-4 a +4)</option>
-            <option value="puntuacion_estandarizada">Puntuación Estandarizada PE (1-19, M=10, SD=3)</option>
-            <option value="no_estandarizada">No es una puntuación estandarizada</option>
-          </select>
-          <div class="annotation-help-text">Especifica el tipo si el sistema no lo identificó correctamente</div>
-        </div>
-        
-        <div class="annotation-form-group">
-          <label for="annotation-abbreviation">Abreviatura (opcional):</label>
-          <input type="text" id="annotation-abbreviation" placeholder="Ej: PC, PT, CI, Z">
-          <div class="annotation-help-text">Si el texto contiene una abreviatura nueva, especifícala aquí</div>
-        </div>
-        
-        <div class="annotation-success-message" id="annotation-success-message"></div>
-      </div>
-      <div class="annotation-modal-footer">
-        <button class="annotation-btn annotation-btn-secondary" onclick="closeAnnotationModal()">Cancelar</button>
-        <button class="annotation-btn annotation-btn-primary" onclick="saveAnnotation()">Guardar</button>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Floating Annotation Button -->
-  <button id="annotation-floating-btn" class="annotation-floating-btn">
-    <span class="tooltip">Selecciona texto y haz clic aquí para añadir una anotación</span>
-    📌
-  </button>
   
   <input type="file" id="fileInput" accept="application/pdf">
   
@@ -767,15 +312,8 @@
     const resultCard = document.getElementById('result-card');
     const fileInput = document.getElementById('fileInput');
     const stats = document.getElementById('stats');
-    const analyzeButtonContainer = document.getElementById('analyze-button-container');
-    const analyzeButton = document.getElementById('analyze-button');
-    const scoreCard = document.getElementById('score-card');
-    const scoreResult = document.getElementById('score-result');
     
     let currentText = '';
-    let selectedText = '';
-    let annotationFloatingBtn = document.getElementById('annotation-floating-btn');
-    let annotationModal = document.getElementById('annotation-modal');
 
     dropzone.addEventListener('click', () => fileInput.click());
     
@@ -797,24 +335,6 @@
     
     fileInput.addEventListener('change', () => {
       handleFiles(fileInput.files);
-    });
-    
-    // Handle text selection in result
-    document.addEventListener('mouseup', handleTextSelection);
-    document.addEventListener('selectionchange', handleTextSelection);
-    
-    // Click floating button to open annotation modal
-    annotationFloatingBtn.addEventListener('click', () => {
-      if (selectedText) {
-        openAnnotationModal(selectedText);
-      }
-    });
-    
-    // Close modal when clicking outside
-    annotationModal.addEventListener('click', (e) => {
-      if (e.target === annotationModal) {
-        closeAnnotationModal();
-      }
     });
 
     async function handleFiles(files) {
@@ -862,13 +382,10 @@
       resultCard.style.display = 'block';
       result.innerHTML = `<div class="error">❌ ${message}</div>`;
       stats.style.display = 'none';
-      analyzeButtonContainer.style.display = 'none';
-      scoreCard.style.display = 'none';
     }
     
     function showSuccess(data) {
       resultCard.style.display = 'block';
-      scoreCard.style.display = 'none'; // Hide score analysis when new OCR is done
       
       if (data.text && data.text.trim()) {
         currentText = data.text;
@@ -886,9 +403,6 @@
         
         stats.innerHTML = statsHTML;
         stats.style.display = 'flex';
-        
-        // Show the analyze button
-        analyzeButtonContainer.style.display = 'block';
       } else {
         result.innerHTML = `
           <div class="error">
@@ -897,371 +411,6 @@
           </div>
         `;
         stats.style.display = 'none';
-        analyzeButtonContainer.style.display = 'none';
-      }
-    }
-    
-    // Handle score analysis button click
-    analyzeButton.addEventListener('click', async () => {
-      if (!currentText) return;
-      
-      analyzeButton.disabled = true;
-      analyzeButton.textContent = '⏳ Analizando...';
-      scoreCard.style.display = 'none';
-      
-      try {
-        const res = await fetch('/analyze-scores', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: currentText })
-        });
-        
-        const data = await res.json();
-        
-        if (!res.ok) {
-          showScoreError(data.error || 'Error desconocido');
-          return;
-        }
-        
-        showScoreAnalysis(data);
-      } catch (e) {
-        showScoreError(`Error de conexión: ${e.message}`);
-      } finally {
-        analyzeButton.disabled = false;
-        analyzeButton.textContent = '🎯 Detectar Puntuaciones y Graficar';
-      }
-    });
-    
-    function showScoreError(message) {
-      scoreCard.style.display = 'block';
-      scoreResult.innerHTML = `<div class="error" style="margin: 20px;">❌ ${message}</div>`;
-    }
-    
-    function showScoreAnalysis(data) {
-      scoreCard.style.display = 'block';
-      
-      if (data.scores && data.scores.length > 0) {
-        let scoreHTML = '<div class="score-analysis-section">';
-        scoreHTML += '<h3 style="margin-bottom: 15px; color: #667eea;">📊 Puntuaciones Detectadas</h3>';
-        scoreHTML += '<p style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">Ayuda al sistema a aprender: marca las puntuaciones correctas ✅ o incorrectas ❌</p>';
-        scoreHTML += '<div class="score-results">';
-        
-        // List all scores with feedback buttons
-        data.scores.forEach((scoreInfo, index) => {
-          const score = scoreInfo[0];
-          const label = scoreInfo[1];
-          const type = scoreInfo[2] || 'desconocido';
-          
-          scoreHTML += `<div class="score-item" data-index="${index}">`;
-          scoreHTML += `<div class="score-info">`;
-          scoreHTML += `<strong>${label}:</strong> <span class="score-highlight">${score}</span> `;
-          scoreHTML += `<span style="font-size: 0.8rem; color: #999;">(${type})</span>`;
-          scoreHTML += `</div>`;
-          scoreHTML += `<div class="feedback-buttons">`;
-          scoreHTML += `<button class="feedback-btn correct" onclick="handleFeedback(${index}, ${score}, '${label.replace(/'/g, "\\'")}', '${type}', true)" title="Correcto">✅</button>`;
-          scoreHTML += `<button class="feedback-btn incorrect" onclick="handleFeedback(${index}, ${score}, '${label.replace(/'/g, "\\'")}', '${type}', false)" title="Incorrecto">❌</button>`;
-          scoreHTML += `</div>`;
-          scoreHTML += `</div>`;
-          scoreHTML += `<div class="correction-form" id="correction-form-${index}">`;
-          scoreHTML += `<p style="margin: 0 0 10px 0; font-weight: bold;">¿Cuál es el tipo correcto?</p>`;
-          scoreHTML += `<select id="correct-type-${index}">`;
-          scoreHTML += `<option value="percentil">Percentil (0-100)</option>`;
-          scoreHTML += `<option value="eneatipo">Eneatipo (1-9)</option>`;
-          scoreHTML += `<option value="decatipo">Decatipo (1-10)</option>`;
-          scoreHTML += `<option value="wechsler">Wechsler/CI (40-160)</option>`;
-          scoreHTML += `<option value="puntuacion_t">Puntuación T (20-80)</option>`;
-          scoreHTML += `<option value="puntuacion_z">Puntuación Z (-4 a +4)</option>`;
-          scoreHTML += `<option value="puntuacion_estandarizada">Puntuación Estandarizada PE (1-19, M=10, SD=3)</option>`;
-          scoreHTML += `<option value="no_estandarizada">No es una puntuación estandarizada</option>`;
-          scoreHTML += `</select>`;
-          scoreHTML += `<button onclick="submitCorrection(${index}, ${score}, '${label.replace(/'/g, "\\'")}', '${type}')">Enviar</button>`;
-          scoreHTML += `<button class="cancel" onclick="cancelCorrection(${index})">Cancelar</button>`;
-          scoreHTML += `</div>`;
-          scoreHTML += `<div class="feedback-message" id="feedback-message-${index}"></div>`;
-        });
-        
-        scoreHTML += '</div>';
-        
-        // Add ASCII chart if available
-        if (data.ascii_chart && data.ascii_chart.trim()) {
-          scoreHTML += `<div class="ascii-chart">${data.ascii_chart}</div>`;
-        }
-        
-        // Add learning stats section
-        scoreHTML += '<div class="learning-stats" id="learning-stats-section">';
-        scoreHTML += '<h4>📚 Sistema de Aprendizaje Progresivo</h4>';
-        scoreHTML += '<p style="margin: 0;">El sistema mejora con tu retroalimentación. Cargando estadísticas...</p>';
-        scoreHTML += '</div>';
-        
-        scoreHTML += '</div>';
-        scoreResult.innerHTML = scoreHTML;
-        
-        // Load learning stats
-        loadLearningStats();
-      } else {
-        scoreResult.innerHTML = `
-          <div class="error" style="margin: 20px;">
-            ℹ️ No se detectaron puntuaciones en el texto.
-          </div>
-        `;
-      }
-    }
-    
-    async function handleFeedback(index, score, label, detectedType, isCorrect) {
-      const buttons = document.querySelectorAll(`[data-index="${index}"] .feedback-btn`);
-      buttons.forEach(btn => {
-        btn.classList.add('active');
-        btn.disabled = true;
-      });
-      
-      if (!isCorrect) {
-        // Show correction form
-        document.getElementById(`correction-form-${index}`).classList.add('show');
-      } else {
-        // Submit positive feedback immediately
-        await submitFeedbackToServer(score, label, detectedType, true, null, index);
-      }
-    }
-    
-    async function submitCorrection(index, score, label, detectedType) {
-      const correctType = document.getElementById(`correct-type-${index}`).value;
-      await submitFeedbackToServer(score, label, detectedType, false, correctType, index);
-    }
-    
-    function cancelCorrection(index) {
-      document.getElementById(`correction-form-${index}`).classList.remove('show');
-      
-      // Re-enable buttons
-      const buttons = document.querySelectorAll(`[data-index="${index}"] .feedback-btn`);
-      buttons.forEach(btn => {
-        btn.classList.remove('active');
-        btn.disabled = false;
-      });
-    }
-    
-    async function submitFeedbackToServer(score, label, detectedType, isCorrect, correctType, index) {
-      try {
-        const res = await fetch('/feedback', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            score: score,
-            label: label,
-            detected_type: detectedType,
-            is_correct: isCorrect,
-            correct_type: correctType
-          })
-        });
-        
-        const data = await res.json();
-        
-        // Hide correction form if visible
-        const correctionForm = document.getElementById(`correction-form-${index}`);
-        if (correctionForm) {
-          correctionForm.classList.remove('show');
-        }
-        
-        // Show feedback message
-        const messageDiv = document.getElementById(`feedback-message-${index}`);
-        if (messageDiv) {
-          messageDiv.textContent = isCorrect 
-            ? '✅ ¡Gracias! El sistema ha aprendido de tu retroalimentación.'
-            : `✅ Corregido a: ${correctType}. El sistema ha aprendido de tu retroalimentación.`;
-          messageDiv.classList.add('show');
-          
-          // Hide message after 3 seconds
-          setTimeout(() => {
-            messageDiv.classList.remove('show');
-          }, 3000);
-        }
-        
-        // Reload learning stats
-        loadLearningStats();
-        
-      } catch (e) {
-        alert(`Error enviando retroalimentación: ${e.message}`);
-        
-        // Re-enable buttons on error
-        const buttons = document.querySelectorAll(`[data-index="${index}"] .feedback-btn`);
-        buttons.forEach(btn => {
-          btn.classList.remove('active');
-          btn.disabled = false;
-        });
-      }
-    }
-    
-    async function loadLearningStats() {
-      try {
-        const res = await fetch('/learning-stats');
-        const data = await res.json();
-        
-        if (data.success) {
-          const statsSection = document.getElementById('learning-stats-section');
-          if (statsSection) {
-            let statsHTML = '<h4>📚 Sistema de Aprendizaje Progresivo</h4>';
-            statsHTML += '<div class="learning-stats-grid">';
-            statsHTML += `<div class="stat-item">`;
-            statsHTML += `<div class="stat-value">${data.total_feedback}</div>`;
-            statsHTML += `<div class="stat-label">Total Feedback</div>`;
-            statsHTML += `</div>`;
-            statsHTML += `<div class="stat-item">`;
-            statsHTML += `<div class="stat-value">${data.positive_feedback}</div>`;
-            statsHTML += `<div class="stat-label">✅ Correctos</div>`;
-            statsHTML += `</div>`;
-            statsHTML += `<div class="stat-item">`;
-            statsHTML += `<div class="stat-value">${data.negative_feedback}</div>`;
-            statsHTML += `<div class="stat-label">❌ Corregidos</div>`;
-            statsHTML += `</div>`;
-            statsHTML += `<div class="stat-item">`;
-            statsHTML += `<div class="stat-value">${data.total_patterns}</div>`;
-            statsHTML += `<div class="stat-label">Patrones Aprendidos</div>`;
-            statsHTML += `</div>`;
-            
-            // Add annotations count if available
-            if (data.total_annotations !== undefined) {
-              statsHTML += `<div class="stat-item">`;
-              statsHTML += `<div class="stat-value">${data.total_annotations}</div>`;
-              statsHTML += `<div class="stat-label">📝 Anotaciones</div>`;
-              statsHTML += `</div>`;
-            }
-            
-            statsHTML += '</div>';
-            
-            if (data.total_patterns > 0) {
-              statsHTML += '<p style="margin-top: 15px; margin-bottom: 5px; font-weight: bold;">Patrones más confiables:</p>';
-              statsHTML += '<div style="font-size: 0.85rem;">';
-              
-              // Sort patterns by confidence and show top 5
-              const topPatterns = data.patterns
-                .sort((a, b) => b.confidence - a.confidence)
-                .slice(0, 5);
-              
-              topPatterns.forEach(pattern => {
-                statsHTML += `<div style="padding: 5px; margin: 3px 0; background: white; border-radius: 3px;">`;
-                statsHTML += `"${pattern.label}" → ${pattern.score_type} (confianza: ${pattern.confidence})`;
-                if (pattern.from_annotation) {
-                  statsHTML += ` <span style="color: #667eea;">📝</span>`;
-                }
-                statsHTML += `</div>`;
-              });
-              
-              statsHTML += '</div>';
-            }
-            
-            statsSection.innerHTML = statsHTML;
-          }
-        }
-      } catch (e) {
-        console.error('Error loading learning stats:', e);
-      }
-    }
-    
-    // Text Selection and Annotation Functions
-    function handleTextSelection() {
-      const selection = window.getSelection();
-      const text = selection.toString().trim();
-      
-      if (text && text.length > 0) {
-        // Check if selection is within result-content
-        const resultContent = document.querySelector('.result-content');
-        if (resultContent && resultContent.contains(selection.anchorNode)) {
-          selectedText = text;
-          annotationFloatingBtn.classList.add('show');
-        } else {
-          selectedText = '';
-          annotationFloatingBtn.classList.remove('show');
-        }
-      } else {
-        selectedText = '';
-        annotationFloatingBtn.classList.remove('show');
-      }
-    }
-    
-    function openAnnotationModal(text) {
-      document.getElementById('selected-text-display').textContent = text;
-      document.getElementById('annotation-note').value = '';
-      document.getElementById('annotation-score-type').value = '';
-      document.getElementById('annotation-abbreviation').value = '';
-      
-      const successMsg = document.getElementById('annotation-success-message');
-      successMsg.classList.remove('show');
-      
-      annotationModal.classList.add('show');
-      
-      // Focus on note field
-      setTimeout(() => {
-        document.getElementById('annotation-note').focus();
-      }, 100);
-    }
-    
-    function closeAnnotationModal() {
-      annotationModal.classList.remove('show');
-      annotationFloatingBtn.classList.remove('show');
-      selectedText = '';
-      
-      // Clear selection
-      if (window.getSelection) {
-        window.getSelection().removeAllRanges();
-      }
-    }
-    
-    async function saveAnnotation() {
-      const note = document.getElementById('annotation-note').value.trim();
-      const scoreType = document.getElementById('annotation-score-type').value;
-      const abbreviation = document.getElementById('annotation-abbreviation').value.trim();
-      
-      if (!note) {
-        alert('Por favor, escribe una nota o comentario.');
-        return;
-      }
-      
-      // If abbreviation is provided, score type is required
-      if (abbreviation && !scoreType) {
-        alert('Por favor, selecciona un tipo de puntuación si especificas una abreviatura.');
-        return;
-      }
-      
-      try {
-        const res = await fetch('/save-annotation', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            selected_text: selectedText,
-            note: note,
-            score_type: scoreType || null,
-            abbreviation: abbreviation || null
-          })
-        });
-        
-        const data = await res.json();
-        
-        if (res.ok && data.success) {
-          const successMsg = document.getElementById('annotation-success-message');
-          let message = '✅ Anotación guardada exitosamente.';
-          if (data.pattern_added) {
-            message += ' Se ha añadido un nuevo patrón de abreviatura.';
-          }
-          successMsg.textContent = message;
-          successMsg.classList.add('show');
-          
-          // Reload learning stats
-          await loadLearningStats();
-          
-          // Close modal after 2 seconds
-          setTimeout(() => {
-            closeAnnotationModal();
-          }, 2000);
-        } else {
-          alert(`Error: ${data.error || 'Error desconocido'}`);
-        }
-      } catch (e) {
-        alert(`Error de conexión: ${e.message}`);
       }
     }
   </script>
